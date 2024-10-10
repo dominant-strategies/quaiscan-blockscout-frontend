@@ -3,6 +3,8 @@ import React from 'react';
 
 import getCurrencyValue from 'lib/getCurrencyValue';
 
+import { getCurrencyFromAddress } from './address/utils';
+
 interface Props {
   value: string;
   currency?: string;
@@ -48,7 +50,7 @@ const CurrencyValue = ({
     exchangeRate,
     decimals,
   });
-  currency = currency ? `${ currency?.charAt(0).toUpperCase() }${ currency?.slice(1) }` : '';
+  currency = currency ? getCurrencyFromAddress({ currency }) : '';
   const condensedValue = (value: string, currency: string) => {
     const isDecimalValue = value.indexOf('0.', 0) === 0;
     if (!isCondensed || !isDecimalValue) {

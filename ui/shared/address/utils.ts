@@ -1,5 +1,7 @@
 import type { AddressParam } from 'types/api/addressParams';
 
+import config from 'configs/app';
+
 export type TxCourseType = 'in' | 'out' | 'self' | 'unspecified';
 
 export function getTxCourseType(from: string, to: string | undefined, current?: string): TxCourseType {
@@ -32,4 +34,13 @@ export const unknownAddress: Omit<AddressParam, 'hash'> = {
   watchlist_names: [],
   ens_domain_name: null,
   currency: null,
+};
+
+export const getCurrencyFromAddress = (address: { currency: string | null }): string => {
+  if (address.currency) {
+    return `${ address.currency.charAt(0).toUpperCase() }${ address.currency.slice(1) }`;
+  }
+
+  const defaultCurrency = config.chain.currency.name as string;
+  return `${ defaultCurrency.charAt(0).toUpperCase() }${ defaultCurrency.slice(1) }`;
 };

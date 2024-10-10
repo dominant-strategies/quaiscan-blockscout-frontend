@@ -463,9 +463,9 @@ const BlockDetails = ({ query }: Props) => {
 
               <DetailsInfoItem title="Time" note="Work object header" noteAlign="left" hint="Block time">
                 <Box whiteSpace="nowrap" overflow="hidden">
-                  <HashStringShortenDynamic hash={ data.wo_header!.time }/>
+                  <HashStringShortenDynamic hash={ data.wo_header!.timestamp }/>
                 </Box>
-                <CopyToClipboard text={ data.wo_header!.time }/>
+                <CopyToClipboard text={ data.wo_header!.timestamp }/>
               </DetailsInfoItem>
             </>
           ) }
@@ -502,7 +502,7 @@ const BlockDetails = ({ query }: Props) => {
             </DetailsInfoItem>
           ) }
 
-          { !config.UI.views.block.hiddenFields?.extRollupRootHash && (
+          { !config.UI.views.block.hiddenFields?.extRollupRoot && (
             <DetailsInfoItem title="Ext Rollup Root Hash" hint="Ext Rollup Root Hash when block was produced">
               { data.ext_rollup_root }
             </DetailsInfoItem>
@@ -532,7 +532,7 @@ const BlockDetails = ({ query }: Props) => {
             </DetailsInfoItem>
           ) }
 
-          { !config.UI.views.block.hiddenFields?.parentUncledSubDeltaS && (
+          { !config.UI.views.block.hiddenFields?.parentUncledDeltaEntropy && (
             <DetailsInfoItem title="Parent Uncled Sub Delta S" hint="Parent Uncled Sub Delta S when block was produced">
               { data.parent_uncled_sub_delta_s &&
                 data.parent_uncled_sub_delta_s.map((hash, index) => (
@@ -579,7 +579,7 @@ const BlockDetails = ({ query }: Props) => {
             </DetailsInfoItem>
           ) }
 
-          { !config.UI.views.block.hiddenFields?.uncledS && (
+          { !config.UI.views.block.hiddenFields?.uncledEntropy && (
             <DetailsInfoItem title="Uncled S" hint="Uncled S when block was produced">
               { data.uncled_s }
             </DetailsInfoItem>

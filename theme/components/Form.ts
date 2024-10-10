@@ -9,8 +9,7 @@ import FormLabel from './FormLabel';
 import Input from './Input';
 import Textarea from './Textarea';
 
-const { definePartsStyle, defineMultiStyleConfig } =
-  createMultiStyleConfigHelpers(parts.keys);
+const { definePartsStyle, defineMultiStyleConfig } = createMultiStyleConfigHelpers(parts.keys);
 
 function getFloatingVariantStylesForSize(size: 'md' | 'lg', props: StyleFunctionProps) {
   const { theme } = props;
@@ -19,7 +18,7 @@ function getFloatingVariantStylesForSize(size: 'md' | 'lg', props: StyleFunction
   const activeLabelStyles = {
     ...FormLabel.variants?.floating?.(props)._focusWithin,
     ...FormLabel.sizes?.[size](props)._focusWithin,
-  } || {};
+  };
 
   const activeInputStyles = (() => {
     switch (size) {
@@ -64,7 +63,7 @@ function getFloatingVariantStylesForSize(size: 'md' | 'lg', props: StyleFunction
       label: FormLabel.sizes?.[size](props) || {},
       'input:not(:placeholder-shown) + label, textarea:not(:placeholder-shown) + label': activeLabelStyles,
       [`
-        input[aria-invalid=true] + label, 
+        input[aria-invalid=true] + label,
         textarea[aria-invalid=true] + label,
         &[aria-invalid=true] label
       `]: {
@@ -80,7 +79,7 @@ function getFloatingVariantStylesForSize(size: 'md' | 'lg', props: StyleFunction
       },
       'input:not(:placeholder-shown), textarea:not(:placeholder-shown)': activeInputStyles,
       [`
-        input[disabled] + label, 
+        input[disabled] + label,
         &[aria-disabled=true] label
       `]: {
         backgroundColor: 'transparent',
@@ -95,9 +94,10 @@ function getFloatingVariantStylesForSize(size: 'md' | 'lg', props: StyleFunction
       },
 
       // indicator styles
-      'input:not(:placeholder-shown) + label .chakra-form__required-indicator, textarea:not(:placeholder-shown) + label .chakra-form__required-indicator': {
-        color: getColor(theme, focusPlaceholderColor),
-      },
+      'input:not(:placeholder-shown) + label .chakra-form__required-indicator, textarea:not(:placeholder-shown) + label .chakra-form__required-indicator':
+        {
+          color: getColor(theme, focusPlaceholderColor),
+        },
       [`
         input[aria-invalid=true] + label .chakra-form__required-indicator,
         textarea[aria-invalid=true] + label .chakra-form__required-indicator,

@@ -142,6 +142,6 @@ export type WoHeader = {
   nonce: number;
   number: number;
   parentHash: string;
-  time: string;
+  timestamp: string;
   txHash: string;
 };

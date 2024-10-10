@@ -4,11 +4,11 @@ import React from 'react';
 import type { Transaction } from 'types/api/transaction';
 
 import config from 'configs/app';
-import getValueWithUnit from 'lib/getValueWithUnit';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
 import { space } from 'lib/html-entities';
 import { currencyUnits } from 'lib/units';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
+import CurrencyValue from 'ui/shared/CurrencyValue';
 import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import ListItemMobile from 'ui/shared/ListItemMobile/ListItemMobile';
@@ -94,7 +94,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
             Value
           </Skeleton>
           <Skeleton isLoaded={ !isLoading } display="inline-block" variant="text_secondary" whiteSpace="pre">
-            { getValueWithUnit(tx.value).toFormat() }
+            <CurrencyValue value={ tx.value } isCondensed={ true }/>
             { space }
             { currencyUnits.ether }
           </Skeleton>
@@ -111,7 +111,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
                 <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } hideUsd/>
               ) : (
                 <Skeleton isLoaded={ !isLoading } display="inline-block" variant="text_secondary" whiteSpace="pre">
-                  { getValueWithUnit(tx.fee.value || 0).toFormat() }
+                  { tx.fee.value ? <CurrencyValue value={ tx.fee.value } isCondensed={ true }/> : '0' }
                   { config.UI.views.tx.hiddenFields?.fee_currency ? '' : ` ${ currencyUnits.ether }` }
                 </Skeleton>
               ) }

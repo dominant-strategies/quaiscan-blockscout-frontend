@@ -58,7 +58,7 @@ export const base: Block = {
     nonce: 0,
     number: 0,
     parentHash: '0x44125f0eb36a9d942e0c23bb4e8117f7ba86a9537a69b59c0025986ed2b7500f',
-    time: '2017-12-16T00:13:24.000000Z',
+    timestamp: '2017-12-16T00:13:24.000000Z',
     txHash: '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
   },
 };
@@ -107,7 +107,7 @@ export const genesis: Block = {
     nonce: 0,
     number: 0,
     parentHash: '0x0000000000000000000000000000000000000000000000000000000000000000',
-    time: '2017-12-16T00:13:24.000000Z',
+    timestamp: '2017-12-16T00:13:24.000000Z',
     txHash: '0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421',
   },
 };
