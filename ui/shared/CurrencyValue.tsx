@@ -52,8 +52,7 @@ const CurrencyValue = ({
   });
   currency = currency ? getCurrencyFromAddress({ currency }) : '';
   const condensedValue = (value: string, currency: string) => {
-    const isDecimalValue = value.indexOf('0.', 0) === 0;
-    if (!isCondensed || !isDecimalValue) {
+    if (!isCondensed) {
       return (
         <Text display="inline-block">
           { value } { currency }
@@ -62,17 +61,8 @@ const CurrencyValue = ({
     }
 
     const [ number, reminder ] = value.split('.');
-    const hasOnlyZeros =
-      reminder
-        // Disregarding the first and last two numbers
-        // which will be shown regardless
-        .slice(2, -2)
-        .split('')
-        .filter((n) => {
-          return n !== '0';
-        }).length === 0;
 
-    if (reminder.length < 6 || !hasOnlyZeros) {
+    if (!reminder) {
       return (
         <Text display="inline-block">
           { value } { currency }
@@ -80,14 +70,33 @@ const CurrencyValue = ({
       );
     }
 
-    const decimalBegin = reminder.slice(0, 2);
-    const decimalEnd = reminder.slice(-2);
+    const begin = reminder.slice(0, 6);
+    const isBeginOnlyZeros =
+      begin.split('').filter((n) => {
+        return n === '0';
+      }).length === begin.length;
+
+    const mid = reminder.slice(6, -6);
+    const isMidOnlyZeros =
+      mid.split('').filter((n) => {
+        return n === '0';
+      }).length === mid.length;
+
+    const end = reminder.slice(-6);
+
+    if (isBeginOnlyZeros && !isMidOnlyZeros) {
+      return (
+        <Text display="inline-block">
+          { value } { currency }
+        </Text>
+      );
+    }
 
     return (
       <Text display="inline-block">
-        { `${ number }.${ decimalBegin }` }
-        <Text fontSize="10px" display="inline" position="relative" top="0.5">{ `${ reminder.length - 4 }` }</Text>
-        { `${ decimalEnd }` } { currency }
+        { `${ number }.${ begin }` }
+        <Text fontSize="10px" display="inline" position="relative" top="0.5">{ `${ mid.length }` }</Text>
+        { `${ end }` } { currency }
       </Text>
     );
   };
