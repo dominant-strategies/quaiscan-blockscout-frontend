@@ -27,9 +27,6 @@ const CurrencyValue = ({
   accuracyUsd,
   isLoading,
 }: Props) => {
-  if (currency === 'Qi') {
-    value = (parseFloat(value) * 10 ** 15).toString();
-  }
   if (isLoading) {
     return (
       <Skeleton className={ className } display="inline-block">
