@@ -7,5 +7,5 @@ export default function shortenString(string: string | null, charNumber: number 
     return string;
   }
 
-  return string.slice(0, charNumber - 4) + '...' + string.slice(-4);
+  return string.slice(0, charNumber - 4) + '...' + string.slice(-6);
 }

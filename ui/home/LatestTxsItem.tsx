@@ -82,7 +82,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
               { fromCurrency ? fromCurrency : currencyUnits.ether }{ ' ' }
             </Text>
             <Text as="span" variant="secondary">
-              <CurrencyValue value={ tx.value } isCondensed={ true }/>
+              <CurrencyValue value={ tx.value } accuracyUsd={ 2 } accuracy={ 8 }/>
             </Text>
           </Skeleton>
         ) }
@@ -93,7 +93,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
               <TxFeeStability data={ tx.stability_fee } accuracy={ 5 } color="text_secondary" hideUsd/>
             ) : (
               <Text as="span" variant="secondary">
-                { tx.fee.value ? <CurrencyValue value={ tx.fee.value } isCondensed={ true }/> : '-' }
+                { tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracyUsd={ 2 } accuracy={ 8 }/> : '-' }
               </Text>
             ) }
           </Skeleton>

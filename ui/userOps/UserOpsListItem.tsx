@@ -25,7 +25,6 @@ const UserOpsListItem = ({ item, isLoading, showTx, showSender }: Props) => {
 
   return (
     <ListItemMobileGrid.Container gridTemplateColumns="100px auto">
-
       <ListItemMobileGrid.Label isLoading={ isLoading }>User op hash</ListItemMobileGrid.Label>
       <ListItemMobileGrid.Value>
         <UserOpEntity hash={ item.hash } isLoading={ isLoading } fontWeight="700" noIcon truncation="constant_long"/>
@@ -33,7 +32,9 @@ const UserOpsListItem = ({ item, isLoading, showTx, showSender }: Props) => {
 
       <ListItemMobileGrid.Label isLoading={ isLoading }>Age</ListItemMobileGrid.Label>
       <ListItemMobileGrid.Value>
-        <Skeleton isLoaded={ !isLoading } color="text_secondary" display="inline-block"><span>{ timeAgo }</span></Skeleton>
+        <Skeleton isLoaded={ !isLoading } color="text_secondary" display="inline-block">
+          <span>{ timeAgo }</span>
+        </Skeleton>
       </ListItemMobileGrid.Value>
 
       <ListItemMobileGrid.Label isLoading={ isLoading }>Status</ListItemMobileGrid.Label>
@@ -45,11 +46,7 @@ const UserOpsListItem = ({ item, isLoading, showTx, showSender }: Props) => {
         <>
           <ListItemMobileGrid.Label isLoading={ isLoading }>Sender</ListItemMobileGrid.Label>
           <ListItemMobileGrid.Value>
-            <AddressStringOrParam
-              address={ item.address }
-              isLoading={ isLoading }
-              truncation="constant"
-            />
+            <AddressStringOrParam address={ item.address } isLoading={ isLoading } truncation="constant"/>
           </ListItemMobileGrid.Value>
         </>
       ) }
@@ -58,25 +55,14 @@ const UserOpsListItem = ({ item, isLoading, showTx, showSender }: Props) => {
         <>
           <ListItemMobileGrid.Label isLoading={ isLoading }>Tx hash</ListItemMobileGrid.Label>
           <ListItemMobileGrid.Value>
-            <TxEntity
-              hash={ item.transaction_hash }
-              isLoading={ isLoading }
-              noIcon
-              truncation="constant_long"
-            />
+            <TxEntity hash={ item.transaction_hash } isLoading={ isLoading } noIcon truncation="constant_long"/>
           </ListItemMobileGrid.Value>
         </>
       ) }
 
       <ListItemMobileGrid.Label isLoading={ isLoading }>Block</ListItemMobileGrid.Label>
       <ListItemMobileGrid.Value>
-        <BlockEntity
-          number={ item.block_number }
-          isLoading={ isLoading }
-          fontSize="sm"
-          lineHeight={ 5 }
-          noIcon
-        />
+        <BlockEntity number={ item.block_number } isLoading={ isLoading } fontSize="sm" lineHeight={ 5 } noIcon/>
       </ListItemMobileGrid.Value>
 
       { !config.UI.views.tx.hiddenFields?.tx_fee && (
@@ -84,12 +70,16 @@ const UserOpsListItem = ({ item, isLoading, showTx, showSender }: Props) => {
           <ListItemMobileGrid.Label isLoading={ isLoading }>Fee</ListItemMobileGrid.Label>
           <ListItemMobileGrid.Value>
             <Skeleton isLoaded={ !isLoading }>
-              <CurrencyValue value={ item.fee } isLoading={ isLoading } accuracy={ 8 } currency={ config.chain.currency.symbol }/>
+              <CurrencyValue
+                value={ item.fee }
+                isLoading={ isLoading }
+                accuracy={ 8 }
+                currency={ config.chain.currency.symbol }
+              />
             </Skeleton>
           </ListItemMobileGrid.Value>
         </>
       ) }
-
     </ListItemMobileGrid.Container>
   );
 };

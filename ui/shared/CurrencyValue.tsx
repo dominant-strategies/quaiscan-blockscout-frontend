@@ -1,4 +1,5 @@
 import { Box, Text, chakra, Skeleton } from '@chakra-ui/react';
+import type { ReactNode } from 'react';
 import React from 'react';
 
 import getCurrencyValue from 'lib/getCurrencyValue';
@@ -14,7 +15,6 @@ interface Props {
   accuracyUsd?: number;
   decimals?: string | null;
   isLoading?: boolean;
-  isCondensed?: boolean;
 }
 
 const CurrencyValue = ({
@@ -26,7 +26,6 @@ const CurrencyValue = ({
   accuracy,
   accuracyUsd,
   isLoading,
-  isCondensed,
 }: Props) => {
   if (isLoading) {
     return (
@@ -43,6 +42,8 @@ const CurrencyValue = ({
       </Box>
     );
   }
+
+  let condensedValue;
   const { valueStr: valueResult, usd: usdResult } = getCurrencyValue({
     value,
     accuracy,
@@ -51,59 +52,24 @@ const CurrencyValue = ({
     decimals,
   });
   currency = currency ? getCurrencyFromAddress({ currency }) : '';
-  const condensedValue = (value: string, currency: string) => {
-    if (!isCondensed) {
-      return (
-        <Text display="inline-block">
-          { value } { currency }
-        </Text>
-      );
-    }
 
-    const [ number, reminder ] = value.split('.');
+  if (valueResult === '0') {
+    const { valueStr: wholeValueResult } = getCurrencyValue({
+      value,
+      accuracy: 0,
+      accuracyUsd,
+      exchangeRate,
+      decimals: '18',
+    });
 
-    if (!reminder) {
-      return (
-        <Text display="inline-block">
-          { value } { currency }
-        </Text>
-      );
-    }
-
-    const begin = reminder.slice(0, 6);
-    const isBeginOnlyZeros =
-      begin.split('').filter((n) => {
-        return n === '0';
-      }).length === begin.length;
-
-    const mid = reminder.slice(6, -6);
-    const isMidOnlyZeros =
-      mid.split('').filter((n) => {
-        return n === '0';
-      }).length === mid.length;
-
-    const end = reminder.slice(-6);
-
-    if (isBeginOnlyZeros && !isMidOnlyZeros) {
-      return (
-        <Text display="inline-block">
-          { value } { currency }
-        </Text>
-      );
-    }
-
-    return (
-      <Text display="inline-block">
-        { `${ number }.${ begin }` }
-        <Text fontSize="10px" display="inline" position="relative" top="0.5">{ `${ mid.length }` }</Text>
-        { `${ end }` } { currency }
-      </Text>
-    );
-  };
+    condensedValue = condenseSmallValue(wholeValueResult);
+  }
 
   return (
     <Box as="span" className={ className } display="inline-flex" rowGap={ 3 } columnGap={ 1 }>
-      { condensedValue(valueResult, currency) }
+      <Text display="inline-block">
+        { condensedValue ? condensedValue : valueResult } { currency }
+      </Text>
       { usdResult && (
         <Text as="span" variant="secondary" fontWeight={ 400 }>
           (${ usdResult })
@@ -112,5 +78,22 @@ const CurrencyValue = ({
     </Box>
   );
 };
+
+function condenseSmallValue(value: string): ReactNode | null {
+  const [ number, reminder ] = value.split('.');
+  if (!reminder) {
+    return null;
+  }
+
+  const valueBeginAtIndex = reminder.split('').findIndex((n) => n !== '0');
+
+  return (
+    <span>
+      { `${ number }.${ reminder[0] }` }
+      <Text fontSize="10px" display="inline" position="relative" top="0.5">{ `${ valueBeginAtIndex - 1 }` }</Text>
+      { reminder[valueBeginAtIndex] }
+    </span>
+  );
+}
 
 export default React.memo(chakra(CurrencyValue));

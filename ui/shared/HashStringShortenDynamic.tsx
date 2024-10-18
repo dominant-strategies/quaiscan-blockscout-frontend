@@ -17,8 +17,8 @@ import useFontFaceObserver from 'use-font-face-observer';
 
 import { BODY_TYPEFACE, HEADING_TYPEFACE } from 'theme/foundations/typography';
 
-const TAIL_LENGTH = 4;
-const HEAD_MIN_LENGTH = 4;
+const TAIL_LENGTH = 6;
+const HEAD_MIN_LENGTH = 6;
 
 interface Props {
   hash: string;
@@ -28,7 +28,13 @@ interface Props {
   as?: As;
 }
 
-const HashStringShortenDynamic = ({ hash, fontWeight = '400', isTooltipDisabled, tailLength = TAIL_LENGTH, as = 'span' }: Props) => {
+const HashStringShortenDynamic = ({
+  hash,
+  fontWeight = '400',
+  isTooltipDisabled,
+  tailLength = TAIL_LENGTH,
+  as = 'span',
+}: Props) => {
   const elementRef = useRef<HTMLSpanElement>(null);
   const [ displayedString, setDisplayedString ] = React.useState(hash);
 
@@ -56,7 +62,7 @@ const HashStringShortenDynamic = ({ hash, fontWeight = '400', isTooltipDisabled,
       let rightI = hash.length - tailLength;
 
       while (rightI - leftI > 1) {
-        const medI = ((rightI - leftI) % 2) ? leftI + (rightI - leftI + 1) / 2 : leftI + (rightI - leftI) / 2;
+        const medI = (rightI - leftI) % 2 ? leftI + (rightI - leftI + 1) / 2 : leftI + (rightI - leftI) / 2;
         const res = hash.slice(0, medI) + '...' + tail;
         shadowEl.textContent = res;
         if (getWidth(shadowEl) < parentWidth) {
@@ -90,12 +96,18 @@ const HashStringShortenDynamic = ({ hash, fontWeight = '400', isTooltipDisabled,
     };
   }, [ calculateString ]);
 
-  const content = <chakra.span ref={ elementRef } as={ as }>{ displayedString }</chakra.span>;
+  const content = (
+    <chakra.span ref={ elementRef } as={ as }>
+      { displayedString }
+    </chakra.span>
+  );
   const isTruncated = hash.length !== displayedString.length;
 
   if (isTruncated) {
     return (
-      <Tooltip label={ hash } isDisabled={ isTooltipDisabled } maxW={{ base: '100vw', lg: '400px' }}>{ content }</Tooltip>
+      <Tooltip label={ hash } isDisabled={ isTooltipDisabled } maxW={{ base: '100vw', lg: '400px' }}>
+        { content }
+      </Tooltip>
     );
   }
 

@@ -12,12 +12,12 @@ import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import UserOpEntity from 'ui/shared/entities/userOp/UserOpEntity';
 import UserOpStatus from 'ui/shared/userOps/UserOpStatus';
 
- type Props = {
-   item: UserOpsItem;
-   isLoading?: boolean;
-   showTx: boolean;
-   showSender: boolean;
- };
+type Props = {
+  item: UserOpsItem;
+  isLoading?: boolean;
+  showTx: boolean;
+  showSender: boolean;
+};
 
 const UserOpsTableItem = ({ item, isLoading, showTx, showSender }: Props) => {
   const timeAgo = dayjs(item.timestamp).fromNow();
@@ -28,38 +28,25 @@ const UserOpsTableItem = ({ item, isLoading, showTx, showSender }: Props) => {
         <UserOpEntity hash={ item.hash } isLoading={ isLoading } noIcon fontWeight={ 700 } truncation="constant_long"/>
       </Td>
       <Td verticalAlign="middle">
-        <Skeleton isLoaded={ !isLoading } color="text_secondary" display="inline-block"><span>{ timeAgo }</span></Skeleton>
+        <Skeleton isLoaded={ !isLoading } color="text_secondary" display="inline-block">
+          <span>{ timeAgo }</span>
+        </Skeleton>
       </Td>
       <Td verticalAlign="middle">
         <UserOpStatus status={ item.status } isLoading={ isLoading }/>
       </Td>
       { showSender && (
         <Td verticalAlign="middle">
-          <AddressStringOrParam
-            address={ item.address }
-            isLoading={ isLoading }
-            truncation="constant"
-          />
+          <AddressStringOrParam address={ item.address } isLoading={ isLoading } truncation="constant"/>
         </Td>
       ) }
       { showTx && (
         <Td verticalAlign="middle">
-          <TxEntity
-            hash={ item.transaction_hash }
-            isLoading={ isLoading }
-            truncation="constant"
-            noIcon
-          />
+          <TxEntity hash={ item.transaction_hash } isLoading={ isLoading } truncation="constant" noIcon/>
         </Td>
       ) }
       <Td verticalAlign="middle">
-        <BlockEntity
-          number={ item.block_number }
-          isLoading={ isLoading }
-          fontSize="sm"
-          lineHeight={ 5 }
-          noIcon
-        />
+        <BlockEntity number={ item.block_number } isLoading={ isLoading } fontSize="sm" lineHeight={ 5 } noIcon/>
       </Td>
       { !config.UI.views.tx.hiddenFields?.tx_fee && (
         <Td verticalAlign="middle" isNumeric>

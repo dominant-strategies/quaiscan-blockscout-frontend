@@ -94,7 +94,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
             Value
           </Skeleton>
           <Skeleton isLoaded={ !isLoading } display="inline-block" variant="text_secondary" whiteSpace="pre">
-            <CurrencyValue value={ tx.value } isCondensed={ true }/>
+            <CurrencyValue value={ tx.value } accuracyUsd={ 2 } accuracy={ 8 }/>
             { space }
             { currencyUnits.ether }
           </Skeleton>
@@ -111,7 +111,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
                 <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } hideUsd/>
               ) : (
                 <Skeleton isLoaded={ !isLoading } display="inline-block" variant="text_secondary" whiteSpace="pre">
-                  { tx.fee.value ? <CurrencyValue value={ tx.fee.value } isCondensed={ true }/> : '0' }
+                  { tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracyUsd={ 2 } accuracy={ 8 }/> : '0' }
                   { config.UI.views.tx.hiddenFields?.fee_currency ? '' : ` ${ currencyUnits.ether }` }
                 </Skeleton>
               ) }
