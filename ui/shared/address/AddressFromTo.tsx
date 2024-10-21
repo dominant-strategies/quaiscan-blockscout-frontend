@@ -26,13 +26,12 @@ interface Props {
 }
 
 const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading, tokenHash = '', noIcon }: Props) => {
-  const mode = useBreakpointValue(
-    {
-      base: (typeof modeProp === 'object' ? modeProp.base : modeProp),
-      lg: (typeof modeProp === 'object' ? modeProp.lg : modeProp),
-      xl: (typeof modeProp === 'object' ? modeProp.xl : modeProp),
-    },
-  ) ?? 'long';
+  const mode =
+    useBreakpointValue({
+      base: typeof modeProp === 'object' ? modeProp.base : modeProp,
+      lg: typeof modeProp === 'object' ? modeProp.lg : modeProp,
+      xl: typeof modeProp === 'object' ? modeProp.xl : modeProp,
+    }) ?? 'long';
 
   const Entity = tokenHash ? AddressEntityWithTokenFilter : AddressEntity;
 
@@ -40,7 +39,7 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
     return (
       <Flex className={ className } flexDir="column" rowGap={ 3 }>
         <Flex alignItems="center" columnGap={ 2 }>
-          { (from && to) && (
+          { from && to && (
             <AddressFromToIcon
               isLoading={ isLoading }
               type={ getTxCourseType(from.hash, to?.hash, current) }
@@ -83,7 +82,20 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
   const iconSize = 20;
 
   return (
-    <Grid className={ className } alignItems="center" gridTemplateColumns={ `fit-content(100%) ${ iconSize }px fit-content(100%)` }>
+    <Grid
+      className={ className }
+      alignItems="center"
+      gridTemplateColumns={ `${ iconSize }px fit-content(100%)` }
+      gridTemplateRows="fit-content(100%) fit-content(100%)"
+      rowGap={ 2 }
+    >
+      { from && to && (
+        <AddressFromToIcon
+          isLoading={ isLoading }
+          type={ getTxCourseType(from.hash, to?.hash, current) }
+          transform="rotate(90deg)"
+        />
+      ) }
       { from && (
         <Entity
           address={ from }
@@ -94,12 +106,7 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
           tokenHash={ tokenHash }
           truncation="constant"
           mr={ isOutgoing ? 4 : 2 }
-        />
-      ) }
-      { (from && to) && (
-        <AddressFromToIcon
-          isLoading={ isLoading }
-          type={ getTxCourseType(from.hash, to?.hash, current) }
+          ml={ 1 }
         />
       ) }
       { to && (
@@ -111,7 +118,7 @@ const AddressFromTo = ({ from, to, current, mode: modeProp, className, isLoading
           noIcon={ noIcon }
           tokenHash={ tokenHash }
           truncation="constant"
-          ml={ 3 }
+          ml={ 6 }
         />
       ) }
     </Grid>

@@ -89,7 +89,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
         />
       ) }
       { !config.UI.views.tx.hiddenFields?.value && (
-        <Flex mt={ 2 } columnGap={ 2 }>
+        <Flex mt={ 6 } columnGap={ 2 }>
           <Skeleton isLoaded={ !isLoading } display="inline-block" whiteSpace="pre">
             Value
           </Skeleton>

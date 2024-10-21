@@ -18,7 +18,7 @@ const LOGO_IMAGE_PROPS = {
 type Props = {
   isHomePage?: boolean;
   renderSearchBar?: () => React.ReactNode;
-}
+};
 
 const HeaderMobile = ({ isHomePage, renderSearchBar }: Props) => {
   const bgColor = useColorModeValue('white', 'black');

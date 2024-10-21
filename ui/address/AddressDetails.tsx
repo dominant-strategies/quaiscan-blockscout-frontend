@@ -108,6 +108,7 @@ const AddressDetails = ({ addressQuery, scrollRef }: Props) => {
             <AddressEntity
               address={{ hash: data.implementation_address, name: data.implementation_name, is_contract: true }}
               isLoading={ addressQuery.isPlaceholderData }
+              truncation="constant"
               noIcon
             />
           </DetailsInfoItem>

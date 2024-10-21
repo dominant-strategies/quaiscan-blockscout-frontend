@@ -51,7 +51,8 @@ const Container = chakra(({ className, children, ...props }: ContainerBaseProps)
   );
 });
 
-export interface LinkBaseProps extends Pick<EntityBaseProps, 'className' | 'onClick' | 'isLoading' | 'isExternal' | 'href' | 'noLink' | 'query'> {
+export interface LinkBaseProps
+  extends Pick<EntityBaseProps, 'className' | 'onClick' | 'isLoading' | 'isExternal' | 'href' | 'noLink' | 'query'> {
   children: React.ReactNode;
 }
 
@@ -63,18 +64,17 @@ const Link = chakra(({ isLoading, children, isExternal, onClick, href, noLink }:
   };
 
   if (noLink) {
-    return <Skeleton isLoaded={ !isLoading } { ...styles }>{ children }</Skeleton>;
+    return (
+      <Skeleton isLoaded={ !isLoading } { ...styles }>
+        { children }
+      </Skeleton>
+    );
   }
 
   const Component = isExternal ? LinkExternal : LinkInternal;
 
   return (
-    <Component
-      { ...styles }
-      href={ href }
-      isLoading={ isLoading }
-      onClick={ onClick }
-    >
+    <Component { ...styles } href={ href } isLoading={ isLoading } onClick={ onClick }>
       { children }
     </Component>
   );
@@ -109,54 +109,34 @@ const Icon = ({ isLoading, iconSize, noIcon, name, iconColor, color, borderRadiu
   );
 };
 
-export interface ContentBaseProps extends Pick<EntityBaseProps, 'className' | 'isLoading' | 'truncation' | 'tailLength'> {
+export interface ContentBaseProps
+  extends Pick<EntityBaseProps, 'className' | 'isLoading' | 'truncation' | 'tailLength'> {
   asProp?: As;
   text: string;
 }
 
-const Content = chakra(({ className, isLoading, asProp, text, truncation = 'dynamic', tailLength }: ContentBaseProps) => {
+const Content = chakra(
+  ({ className, isLoading, asProp, text, truncation = 'dynamic', tailLength }: ContentBaseProps) => {
+    const children = (() => {
+      switch (truncation) {
+        case 'constant_long':
+          return <HashStringShorten hash={ text } as={ asProp } type="long"/>;
+        case 'constant':
+          return <HashStringShorten hash={ text } as={ asProp }/>;
+        case 'dynamic':
+          return <HashStringShortenDynamic hash={ text } as={ asProp } tailLength={ tailLength }/>;
+        case 'none':
+          return <chakra.span as={ asProp }>{ text }</chakra.span>;
+      }
+    })();
 
-  const children = (() => {
-    switch (truncation) {
-      case 'constant_long':
-        return (
-          <HashStringShorten
-            hash={ text }
-            as={ asProp }
-            type="long"
-          />
-        );
-      case 'constant':
-        return (
-          <HashStringShorten
-            hash={ text }
-            as={ asProp }
-          />
-        );
-      case 'dynamic':
-        return (
-          <HashStringShortenDynamic
-            hash={ text }
-            as={ asProp }
-            tailLength={ tailLength }
-          />
-        );
-      case 'none':
-        return <chakra.span as={ asProp }>{ text }</chakra.span>;
-    }
-  })();
-
-  return (
-    <Skeleton
-      className={ className }
-      isLoaded={ !isLoading }
-      overflow="hidden"
-      whiteSpace="nowrap"
-    >
-      { children }
-    </Skeleton>
-  );
-});
+    return (
+      <Skeleton className={ className } isLoaded={ !isLoading } overflow="hidden" whiteSpace="nowrap">
+        { children }
+      </Skeleton>
+    );
+  },
+);
 
 export type CopyBaseProps = Pick<CopyToClipboardProps, 'isLoading' | 'text'> & Pick<EntityBaseProps, 'noCopy'>;
 
@@ -168,10 +148,4 @@ const Copy = (props: CopyBaseProps) => {
   return <CopyToClipboard { ...props }/>;
 };
 
-export {
-  Container,
-  Link,
-  Icon,
-  Copy,
-  Content,
-};
+export { Container, Link, Icon, Copy, Content };
