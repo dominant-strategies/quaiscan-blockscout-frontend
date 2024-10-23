@@ -137,7 +137,7 @@ const AddressEntry = (props: EntityProps) => {
   const [ parentRef, size ] = useResizeObserver();
   const context = useAddressHighlightContext();
 
-  const windowWidth = window && window.innerWidth ? window.innerWidth : 0;
+  const windowWidth = typeof window !== 'undefined' && window.innerWidth ? window.innerWidth : 0;
   const addressTruncation = windowWidth > 764 && partsProps['truncation'] === undefined ? 'dynamic' : 'constant';
   partsProps['truncation'] = addressTruncation;
 
