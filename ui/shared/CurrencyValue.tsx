@@ -8,7 +8,7 @@ import { getCurrencyFromAddress } from './address/utils';
 
 interface Props {
   value: string;
-  currency?: string;
+  currency?: string | null;
   exchangeRate?: string | null;
   className?: string;
   accuracy?: number;

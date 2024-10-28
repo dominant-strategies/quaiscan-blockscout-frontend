@@ -36,7 +36,7 @@ export const unknownAddress: Omit<AddressParam, 'hash'> = {
   currency: null,
 };
 
-export const getCurrencyFromAddress = (address: { currency?: string }): string => {
+export const getCurrencyFromAddress = (address: { currency?: string | null }): string => {
   if (address.currency) {
     return `${ address.currency.charAt(0).toUpperCase() }${ address.currency.slice(1) }`;
   }
