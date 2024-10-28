@@ -19,7 +19,7 @@ interface Props {
 
 const CurrencyValue = ({
   value,
-  currency = '',
+  currency,
   decimals,
   exchangeRate,
   className,
@@ -43,6 +43,11 @@ const CurrencyValue = ({
     );
   }
 
+  currency = currency ? getCurrencyFromAddress({ currency }) : '';
+  if (currency === 'Qi') {
+    decimals = '3';
+  }
+
   let condensedValue;
   const { valueStr: valueResult, usd: usdResult } = getCurrencyValue({
     value,
@@ -51,9 +56,8 @@ const CurrencyValue = ({
     exchangeRate,
     decimals,
   });
-  currency = currency ? getCurrencyFromAddress({ currency }) : '';
 
-  if (valueResult === '0') {
+  if (valueResult === '0' && currency !== 'Qi') {
     const { valueStr: wholeValueResult } = getCurrencyValue({
       value,
       accuracy: 0,
