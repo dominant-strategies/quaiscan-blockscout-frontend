@@ -171,7 +171,8 @@ const AddressPageContent = () => {
       data={ addressQuery.data }
       isLoading={ isLoading }
       tagsBefore={ [
-        !addressQuery.data?.is_contract ? { label: 'eoa', display_name: 'EOA' } : undefined,
+        // Quick Fix to not exhibit the "EOA" tag for token contracts
+        !addressQuery.data?.token ? { label: 'eoa', display_name: 'EOA' } : undefined,
         config.features.validators.isEnabled && addressQuery.data?.has_validated_blocks ?
           { label: 'validator', display_name: 'Validator' } :
           undefined,
