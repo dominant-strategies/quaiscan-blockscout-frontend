@@ -14,7 +14,6 @@ import { generateListStub } from 'stubs/utils';
 import useQueryWithPages from 'ui/shared/pagination/useQueryWithPages';
 import SocketAlert from 'ui/shared/SocketAlert';
 
-import AddressCoinBalanceChart from './coinBalance/AddressCoinBalanceChart';
 import AddressCoinBalanceHistory from './coinBalance/AddressCoinBalanceHistory';
 
 const AddressCoinBalance = () => {
@@ -81,7 +80,6 @@ const AddressCoinBalance = () => {
   return (
     <>
       { socketAlert && <SocketAlert mb={ 6 }/> }
-      <AddressCoinBalanceChart addressHash={ addressHash }/>
       <div ref={ scrollRef }></div>
       <AddressCoinBalanceHistory query={ coinBalanceQuery }/>
     </>

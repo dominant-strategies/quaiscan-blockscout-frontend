@@ -1,10 +1,11 @@
 import { Box, Flex, HStack, useColorModeValue } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import type { RoutedTab } from 'ui/shared/Tabs/types';
 
 import config from 'configs/app';
+import useApiFetch from 'lib/api/useApiFetch';
 import useApiQuery from 'lib/api/useApiQuery';
 import { useAppContext } from 'lib/contexts/app';
 import useContractTabs from 'lib/hooks/useContractTabs';
@@ -49,6 +50,7 @@ const AddressPageContent = () => {
 
   const tabsScrollRef = React.useRef<HTMLDivElement>(null);
   const hash = getQueryParamString(router.query.hash);
+  const fetchApi = useApiFetch();
 
   const addressQuery = useAddressQuery({ hash });
 
@@ -243,6 +245,26 @@ const AddressPageContent = () => {
       <NetworkExplorers type="address" pathParam={ hash }/>
     </Flex>
   );
+
+  // UseEffect to trigger the update_balance call on load and after 10 seconds
+  useEffect(() => {
+    const updateBalance = async() => {
+      if (hash) {
+        await fetchApi('update_balance', {
+          fetchParams: {
+            method: 'POST',
+            body: { address: hash },
+          },
+        });
+      }
+    };
+
+    updateBalance();
+
+    const balanceTimeout = setTimeout(updateBalance, 10000);
+
+    return () => clearTimeout(balanceTimeout);
+  }, [ hash, fetchApi ]);
 
   return (
     <>

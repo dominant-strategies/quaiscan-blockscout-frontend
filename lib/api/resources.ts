@@ -386,6 +386,11 @@ export const RESOURCES = {
     shardable: 'api',
   },
 
+  update_balance: {
+    path: '/api/update_balance',
+    method: 'POST',
+  },
+
   // ADDRESS
   address: {
     path: '/api/v2/addresses/:hash',
