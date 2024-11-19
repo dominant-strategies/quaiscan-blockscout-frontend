@@ -413,7 +413,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
               { data.max_priority_fee_per_gas && (
                 <Skeleton isLoaded={ !isLoading }>
                   <Text as="span" fontWeight="500">
-                      Max priority:{ ' ' }
+                      Miner Tip:{ ' ' }
                   </Text>
                   <Text fontWeight="600" as="span">
                     { BigNumber(data.max_priority_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() }

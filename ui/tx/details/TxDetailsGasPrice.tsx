@@ -30,7 +30,8 @@ const TxDetailsGasPrice = ({ gasPrice, gasCurrency = '', isLoading }: Props) => 
       </Skeleton>
       <Skeleton isLoaded={ !isLoading } color="text_secondary">
         <span>
-          ({ BigNumber(gasPrice).dividedBy(WEI_IN_GWEI).toFixed() } { gasCurrency ? gasCurrency : currencyUnits.ether })
+          { /* eslint-disable-next-line no-nested-ternary */ }
+          ({ BigNumber(gasPrice).dividedBy(WEI_IN_GWEI).toFixed() } { gasCurrency === 'Quai' ? 'Gwei' : gasCurrency || currencyUnits.ether })
         </span>
       </Skeleton>
     </DetailsInfoItem>
