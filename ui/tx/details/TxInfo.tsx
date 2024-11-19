@@ -46,7 +46,6 @@ import TxFeeStability from 'ui/shared/tx/TxFeeStability';
 import Utilization from 'ui/shared/Utilization/Utilization';
 import VerificationSteps from 'ui/shared/verificationSteps/VerificationSteps';
 import TxDetailsActions from 'ui/tx/details/txDetailsActions/TxDetailsActions';
-import TxDetailsBurntFees from 'ui/tx/details/TxDetailsBurntFees';
 import TxDetailsFeePerGas from 'ui/tx/details/TxDetailsFeePerGas';
 import TxDetailsGasPrice from 'ui/tx/details/TxDetailsGasPrice';
 import TxDetailsOther from 'ui/tx/details/TxDetailsOther';
@@ -353,7 +352,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
       { data.type !== 2 && (
         <>
           <TxDetailsGasPrice
-            gasPrice={ data.gas_price }
+            gasPrice={ data.max_fee_per_gas }
             gasCurrency={ data.from.currency as string }
             isLoading={ isLoading }
           />
@@ -487,7 +486,6 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         </>
       ) }
 
-      <TxDetailsBurntFees data={ data } isLoading={ isLoading }/>
       { data.type !== 2 && (
         <GridItem colSpan={{ base: undefined, lg: 2 }}>
           <Element name="TxInfo__cutLink">
