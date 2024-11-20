@@ -43,13 +43,13 @@ const ERROR_SCREEN_STYLES: ChakraProps = {
   p: { base: 4, lg: 0 },
 };
 
-const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: () => void }) => {
+const CookieBanner = ({ onAccept, onReject }: { onAccept: () => void; onReject: () => void }) => {
   const [ cookiesHandled, setCookiesHandled ] = useState(false);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem('cookiesAccepted');
     if (storedConsent) {
-      setCookiesHandled(true); // If cookies are already accepted/rejected, hide the modal
+      setCookiesHandled(true); // Hide banner if consent is already handled
     }
   }, []);
 
@@ -66,69 +66,56 @@ const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: (
   }, [ onReject ]);
 
   if (cookiesHandled) {
-    return null; // Don't render the modal if consent has already been handled
+    return null; // Don't render the banner if consent is already handled
   }
 
   return (
     <div
       style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
+        bottom: 0,
         width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        color: '#fff',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        borderTop: '1px solid #ddd',
         zIndex: 2000,
+        padding: '16px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
       }}
     >
-      <div
-        style={{
-          backgroundColor: '#222',
-          padding: '20px',
-          borderRadius: '8px',
-          textAlign: 'center',
-          maxWidth: '400px',
-          width: '90%',
-          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
-        }}
-      >
-        <h2>We Value Your Privacy</h2>
-        <p>
-                    This website uses cookies to enhance your experience. Please accept or reject cookies to proceed.
-        </p>
-        <div style={{ marginTop: '20px' }}>
-          <button
-            onClick={ handleAccept }
-            style={{
-              padding: '10px 20px',
-              marginRight: '10px',
-              backgroundColor: '#4CAF50',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
-          >
-                        Accept
-          </button>
-          <button
-            onClick={ handleReject }
-            style={{
-              padding: '10px 20px',
-              backgroundColor: '#f44336',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '5px',
-              cursor: 'pointer',
-            }}
-          >
-                        Reject
-          </button>
-        </div>
+      <p style={{ margin: 0, fontSize: '14px', color: '#333' }}>
+                By clicking “Accept All Cookies,” you agree to the storing of cookies on your device to enhance site
+                navigation, analyze site usage, and assist in our marketing efforts.
+      </p>
+      <div>
+        <button
+          onClick={ handleReject }
+          style={{
+            backgroundColor: '#e53935', // Red for reject
+            color: '#fff',
+            border: 'none',
+            padding: '10px 20px',
+            marginRight: '10px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+                    Reject All
+        </button>
+        <button
+          onClick={ handleAccept }
+          style={{
+            backgroundColor: '#e53935', // Red for accept
+            color: '#fff',
+            border: 'none',
+            padding: '10px 20px',
+            borderRadius: '4px',
+            cursor: 'pointer',
+          }}
+        >
+                    Accept All Cookies
+        </button>
       </div>
     </div>
   );
@@ -187,7 +174,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
                 <ScrollDirectionProvider>
                   <SocketProvider url={ wsUrl }>
                     { cookiesAccepted === null && (
-                      <CookieModal
+                      <CookieBanner
                         onAccept={ handleAcceptCookies }
                         onReject={ handleRejectCookies }
                       />
