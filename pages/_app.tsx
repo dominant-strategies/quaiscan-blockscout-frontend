@@ -166,10 +166,6 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     return url.toString();
   }, [ shard ]);
 
-  if (!isReady) {
-    return null;
-  }
-
   return (
     <ChakraProvider theme={ theme } cookies={ pageProps.cookies }>
       <AppErrorBoundary { ...ERROR_SCREEN_STYLES } onError={ handleError }>
@@ -179,7 +175,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               <GrowthBookProvider growthbook={ growthBook }>
                 <ScrollDirectionProvider>
                   <SocketProvider url={ wsUrl }>
-                    { cookiesAccepted === null && (
+                    { isReady && cookiesAccepted === null && (
                       <CookieBanner
                         onAccept={ handleAcceptCookies }
                         onReject={ handleRejectCookies }
