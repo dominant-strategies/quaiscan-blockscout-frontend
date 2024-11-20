@@ -43,7 +43,7 @@ const ERROR_SCREEN_STYLES: ChakraProps = {
   p: { base: 4, lg: 0 },
 };
 
-const CookieBanner = ({ onAccept }: { onAccept: () => void }) => {
+const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: () => void }) => {
   const [ cookiesAccepted, setCookiesAccepted ] = useState(false);
 
   useEffect(() => {
@@ -59,26 +59,77 @@ const CookieBanner = ({ onAccept }: { onAccept: () => void }) => {
     onAccept();
   }, [ onAccept ]);
 
+  const handleReject = useCallback(() => {
+    localStorage.setItem('cookiesAccepted', 'false');
+    setCookiesAccepted(false);
+    onReject();
+  }, [ onReject ]);
+
   if (cookiesAccepted) {
-    return null;
+    return null; // Don't render the modal if consent is already given or rejected
   }
 
   return (
     <div
       style={{
         position: 'fixed',
-        bottom: 0,
-        backgroundColor: '#000',
-        color: '#fff',
+        top: 0,
+        left: 0,
         width: '100%',
-        padding: '10px',
-        zIndex: 1000,
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        color: '#fff',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 2000,
       }}
     >
-      <p>
-          We use cookies to enhance your experience. By continuing to visit this site, you accept our use of cookies.{ ' ' }
-        <button onClick={ handleAccept }>Accept</button>
-      </p>
+      <div
+        style={{
+          backgroundColor: '#222',
+          padding: '20px',
+          borderRadius: '8px',
+          textAlign: 'center',
+          maxWidth: '400px',
+          width: '90%',
+          boxShadow: '0 4px 10px rgba(0, 0, 0, 0.3)',
+        }}
+      >
+        <h2>We Value Your Privacy</h2>
+        <p>
+            This website uses cookies to enhance your experience. Please accept or reject cookies to proceed.
+        </p>
+        <div style={{ marginTop: '20px' }}>
+          <button
+            onClick={ handleAccept }
+            style={{
+              padding: '10px 20px',
+              marginRight: '10px',
+              backgroundColor: '#4CAF50',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+            }}
+          >
+              Accept
+          </button>
+          <button
+            onClick={ handleReject }
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#f44336',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+            }}
+          >
+              Reject
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -101,6 +152,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
   const handleAcceptCookies = useCallback(() => {
     setCookiesAccepted(true);
+  }, []);
+
+  const handleRejectCookies = useCallback(() => {
+    setCookiesAccepted(false);
   }, []);
 
   const handleError = React.useCallback((error: Error) => {
@@ -129,7 +184,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               <GrowthBookProvider growthbook={ growthBook }>
                 <ScrollDirectionProvider>
                   <SocketProvider url={ wsUrl }>
-                    <CookieBanner onAccept={ handleAcceptCookies }/>
+                    <CookieModal
+                      onAccept={ handleAcceptCookies }
+                      onReject={ handleRejectCookies }
+                    />
                     { getLayout(<Component { ...pageProps }/>) }
                   </SocketProvider>
                 </ScrollDirectionProvider>
