@@ -44,29 +44,29 @@ const ERROR_SCREEN_STYLES: ChakraProps = {
 };
 
 const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: () => void }) => {
-  const [ cookiesAccepted, setCookiesAccepted ] = useState(false);
+  const [ cookiesHandled, setCookiesHandled ] = useState(false);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem('cookiesAccepted');
     if (storedConsent) {
-      setCookiesAccepted(storedConsent === 'true');
+      setCookiesHandled(true); // If cookies are already accepted/rejected, hide the modal
     }
   }, []);
 
   const handleAccept = useCallback(() => {
     localStorage.setItem('cookiesAccepted', 'true');
-    setCookiesAccepted(true);
+    setCookiesHandled(true);
     onAccept();
   }, [ onAccept ]);
 
   const handleReject = useCallback(() => {
     localStorage.setItem('cookiesAccepted', 'false');
-    setCookiesAccepted(false);
+    setCookiesHandled(true);
     onReject();
   }, [ onReject ]);
 
-  if (cookiesAccepted) {
-    return null; // Don't render the modal if consent is already given or rejected
+  if (cookiesHandled) {
+    return null; // Don't render the modal if consent has already been handled
   }
 
   return (
@@ -98,7 +98,7 @@ const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: (
       >
         <h2>We Value Your Privacy</h2>
         <p>
-            This website uses cookies to enhance your experience. Please accept or reject cookies to proceed.
+                    This website uses cookies to enhance your experience. Please accept or reject cookies to proceed.
         </p>
         <div style={{ marginTop: '20px' }}>
           <button
@@ -113,7 +113,7 @@ const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: (
               cursor: 'pointer',
             }}
           >
-              Accept
+                        Accept
           </button>
           <button
             onClick={ handleReject }
@@ -126,7 +126,7 @@ const CookieModal = ({ onAccept, onReject }: { onAccept: () => void; onReject: (
               cursor: 'pointer',
             }}
           >
-              Reject
+                        Reject
           </button>
         </div>
       </div>
@@ -141,12 +141,14 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const queryClient = useQueryClientConfig();
   const { shard } = useShards();
 
-  const [ cookiesAccepted, setCookiesAccepted ] = useState(false);
+  const [ cookiesAccepted, setCookiesAccepted ] = useState<boolean | null>(null);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem('cookiesAccepted');
     if (storedConsent === 'true') {
       setCookiesAccepted(true);
+    } else if (storedConsent === 'false') {
+      setCookiesAccepted(false);
     }
   }, []);
 
@@ -184,10 +186,12 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
               <GrowthBookProvider growthbook={ growthBook }>
                 <ScrollDirectionProvider>
                   <SocketProvider url={ wsUrl }>
-                    <CookieModal
-                      onAccept={ handleAcceptCookies }
-                      onReject={ handleRejectCookies }
-                    />
+                    { cookiesAccepted === null && (
+                      <CookieModal
+                        onAccept={ handleAcceptCookies }
+                        onReject={ handleRejectCookies }
+                      />
+                    ) }
                     { getLayout(<Component { ...pageProps }/>) }
                   </SocketProvider>
                 </ScrollDirectionProvider>
