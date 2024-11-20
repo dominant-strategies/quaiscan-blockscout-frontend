@@ -129,6 +129,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const { shard } = useShards();
 
   const [ cookiesAccepted, setCookiesAccepted ] = useState<boolean | null>(null);
+  const [ isReady, setIsReady ] = useState(false);
 
   useEffect(() => {
     const storedConsent = localStorage.getItem('cookiesAccepted');
@@ -137,6 +138,7 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
     } else if (storedConsent === 'false') {
       setCookiesAccepted(false);
     }
+    setIsReady(true);
   }, []);
 
   const handleAcceptCookies = useCallback(() => {
@@ -163,6 +165,10 @@ function MyApp({ Component, pageProps }: AppPropsWithLayout) {
 
     return url.toString();
   }, [ shard ]);
+
+  if (!isReady) {
+    return null;
+  }
 
   return (
     <ChakraProvider theme={ theme } cookies={ pageProps.cookies }>
