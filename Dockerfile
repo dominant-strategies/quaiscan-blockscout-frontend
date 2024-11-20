@@ -38,6 +38,8 @@ ARG GIT_COMMIT_SHA
 ENV NEXT_PUBLIC_GIT_COMMIT_SHA=$GIT_COMMIT_SHA
 ARG GIT_TAG
 ENV NEXT_PUBLIC_GIT_TAG=$GIT_TAG
+ARG NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID
+ENV NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID=$NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID
 
 ENV NODE_ENV production
 
@@ -69,7 +71,7 @@ RUN cd ./deploy/tools/feature-reporter && yarn build
 
 
 ### ENV VARIABLES CHECKER
-# Copy dependencies and source code, then build 
+# Copy dependencies and source code, then build
 COPY --from=deps /envs-validator/node_modules ./deploy/tools/envs-validator/node_modules
 RUN cd ./deploy/tools/envs-validator && yarn build
 
