@@ -3,10 +3,14 @@ import React from 'react';
 
 import config from 'configs/app';
 
+import { useCookieConsent } from './CookieConsentContext';
+
 const feature = config.features.googleAnalytics;
 
 const GoogleAnalytics = () => {
-  if (!feature.isEnabled) {
+  const { cookiesAccepted } = useCookieConsent();
+
+  if (!cookiesAccepted || !feature.isEnabled) {
     return null;
   }
 
