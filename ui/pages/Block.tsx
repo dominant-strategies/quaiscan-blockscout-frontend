@@ -46,11 +46,13 @@ const BlockPageContent = () => {
   const blockQuery = useBlockQuery({ heightOrHash });
   const blockTxsQuery = useBlockTxsQuery({ heightOrHash, blockQuery, tab });
   const blockCoinbaseTxsQuery = useBlockCoinbaseTxsQuery({ heightOrHash, tab });
-  const blockExternalTxsQuery = useBlockExternalTxsQuery({ heightOrHash, blockQuery, tab });
-  const blockConversionTxsQuery = useBlockConversionTxsQuery({ heightOrHash, blockQuery, tab });
+  const blockExternalTxsQuery = useBlockExternalTxsQuery({ heightOrHash, tab });
+  const blockConversionTxsQuery = useBlockConversionTxsQuery({ heightOrHash, tab });
   const blockWithdrawalsQuery = useBlockWithdrawalsQuery({ heightOrHash, blockQuery, tab });
   const blockBlobTxsQuery = useBlockBlobTxsQuery({ heightOrHash, blockQuery, tab });
   const normalizedCoinbaseTxsQuery = useNormalizedCoinbaseTxsQuery(blockCoinbaseTxsQuery);
+  const normalizedConversionTxsQuery = useNormalizedCoinbaseTxsQuery(blockConversionTxsQuery);
+  const normalizedExternalTxsQuery = useNormalizedCoinbaseTxsQuery(blockExternalTxsQuery);
 
   const tabs: Array<RoutedTab> = React.useMemo(
     () =>
@@ -94,14 +96,22 @@ const BlockPageContent = () => {
           id: 'external',
           title: 'Externals',
           component: (
-            <TxsWithFrontendSorting query={ blockExternalTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
+            <TxsWithFrontendSorting
+              query={ normalizedExternalTxsQuery }
+              showBlockInfo={ false }
+              showSocketInfo={ false }
+            />
           ),
         },
         {
           id: 'conversion',
           title: 'Conversions',
           component: (
-            <TxsWithFrontendSorting query={ blockConversionTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
+            <TxsWithFrontendSorting
+              query={ normalizedConversionTxsQuery }
+              showBlockInfo={ false }
+              showSocketInfo={ false }
+            />
           ),
         },
         blockQuery.data?.blob_tx_count ?
@@ -140,7 +150,14 @@ const BlockPageContent = () => {
           } :
           null,
       ].filter(Boolean),
-    [ blockBlobTxsQuery, blockQuery, blockTxsQuery, blockWithdrawalsQuery, blockExternalTxsQuery, blockConversionTxsQuery, normalizedCoinbaseTxsQuery ],
+    [ blockQuery,
+      blockTxsQuery,
+      normalizedCoinbaseTxsQuery,
+      normalizedExternalTxsQuery,
+      normalizedConversionTxsQuery,
+      blockBlobTxsQuery,
+      blockWithdrawalsQuery,
+    ],
   );
 
   const hasPagination =
