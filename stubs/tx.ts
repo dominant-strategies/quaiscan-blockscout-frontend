@@ -1,5 +1,5 @@
 import type { RawTracesResponse } from 'types/api/rawTrace';
-import type { Transaction, UtxoTransaction } from 'types/api/transaction';
+import type { OutboundInbound, Transaction, UtxoTransaction } from 'types/api/transaction';
 
 import { ADDRESS_PARAMS } from './addressParams';
 
@@ -48,6 +48,36 @@ export const TX: Transaction = {
     14545,
   ],
   tx_tag: null,
+};
+
+export const OUTBOUND_INBOUND_TX: OutboundInbound = {
+  inbound: {
+    block_hash: '00004f9ec3751727fa1179aa5a791741db25c3e21abdba54ab588a6237803188',
+    block_timestamp: null,
+    chain_id: null,
+    cumulative_gas_used: '0',
+    from_address: '00ab6272b231776f5e753086be2068499729981f',
+    gas: '21000',
+    gas_price: '0',
+    gas_used: '0',
+    hash: '00f800ff2322dd592846ea91f4a5529aad136790c019a27b50e0d54c92da65ab',
+    index: 0,
+    max_fee_per_gas: null,
+    max_priority_fee_per_gas: null,
+    nonce: 0,
+    status: 'ok',
+    to_address: '00ab6272b231776f5e753086be2068499729981f',
+    type: 1,
+    value: '1',
+  },
+  outbound: {
+    from_address: '00ab6272b231776f5e753086be2068499729981f',
+    gas: '21000',
+    hash: '00f800ff2322dd592846ea91f4a5529aad136790c019a27b50e0d54c92da65ab',
+    to_address: '00ab6272b231776f5e753086be2068499729981f',
+    transaction_index: 0,
+    value: '1',
+  },
 };
 
 export const UTXO_TX: UtxoTransaction = {

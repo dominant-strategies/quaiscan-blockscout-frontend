@@ -38,7 +38,7 @@ import type {
   Block, BlockFilters,
   BlockWithdrawalsResponse,
   BlockExternalTransactionsResponse,
-  BlockUtxoTransactionsResponse,
+  BlockUtxoTransactionsResponse, OutboundInboundTransactionResponse,
 } from 'types/api/block';
 import type { ChartMarketResponse, ChartTransactionResponse } from 'types/api/charts';
 import type { BackendVersionConfig } from 'types/api/configs';
@@ -282,6 +282,11 @@ export const RESOURCES = {
     path: '/api/v2/blocks/:height_or_hash/transactions',
     pathParams: [ 'height_or_hash' as const ],
     filterFields: [ 'type' as const ],
+    shardable: 'api',
+  },
+  outbound_coinbase_txs: {
+    path: '/api/v2/transactions/outbound-inbound/:block_number/coinbase',
+    pathParams: [ 'block_number' as const ],
     shardable: 'api',
   },
   block_ext_txs: {
@@ -836,7 +841,7 @@ export interface ResourceError<T = unknown> {
 
 export type ResourceErrorAccount<T> = ResourceError<{ errors: T }>
 
-export type PaginatedResources = 'blocks' | 'block_txs' | 'block_ext_txs' | 'block_utxo_txs' |
+export type PaginatedResources = 'blocks' | 'block_txs' | 'outbound_coinbase_txs' | 'block_ext_txs' | 'block_utxo_txs' |
 'txs_validated' | 'txs_pending' | 'txs_with_blobs' | 'txs_watchlist' | 'txs_execution_node' |
 'tx_internal_txs' | 'tx_logs' | 'tx_token_transfers' | 'tx_state_changes' | 'tx_blobs' |
 'addresses' |
@@ -886,6 +891,7 @@ Q extends 'stats_line' ? StatsChart :
 Q extends 'blocks' ? BlocksResponse :
 Q extends 'block' ? Block :
 Q extends 'block_txs' ? BlockTransactionsResponse :
+Q extends 'outbound_coinbase_txs' ? OutboundInboundTransactionResponse :
 Q extends 'block_ext_txs' ? BlockExternalTransactionsResponse :
 Q extends 'block_utxo_txs' ? BlockUtxoTransactionsResponse :
 Q extends 'block_withdrawals' ? BlockWithdrawalsResponse :
@@ -995,6 +1001,7 @@ export type PaginatedResponseNextPageParams<Q extends ResourceName> = Q extends 
 export type PaginationFilters<Q extends PaginatedResources> =
 Q extends 'blocks' ? BlockFilters :
 Q extends 'block_txs' ? TTxsWithBlobsFilters :
+Q extends 'outbound_coinbase_txs' ? TTxsWithBlobsFilters :
 Q extends 'block_ext_txs' ? TTxsWithBlobsFilters :
 Q extends 'block_utxo_txs' ? TTxsWithBlobsFilters :
 Q extends 'txs_validated' | 'txs_pending' ? TTxsFilters :
