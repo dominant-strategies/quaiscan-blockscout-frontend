@@ -70,9 +70,17 @@ export interface Block {
   uncled_s?: string;
   interlink_hashes?: string;
   wo_header?: WoHeader;
+  dynamic_rewards?: Array<DynamicReward>;
 
   // Shard ID
   shard_id?: string;
+}
+
+export interface DynamicReward {
+  address_hash: string;
+  block_hash: string;
+  finalized: boolean;
+  reward: string;
 }
 
 export interface BlocksResponse {

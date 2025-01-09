@@ -1,14 +1,15 @@
-import { Tr, Td, Flex, Box, Tooltip, Skeleton, useColorModeValue } from '@chakra-ui/react';
+import { Tr, Td, Flex, Text, Box, Tooltip, Skeleton, useColorModeValue } from '@chakra-ui/react';
 import BigNumber from 'bignumber.js';
 import { motion } from 'framer-motion';
 import React from 'react';
+import type { ReactElement } from 'react';
 
-import type { Block } from 'types/api/block';
+import type { AddressParam } from '../../types/api/addressParams';
+import type { Block, DynamicReward } from 'types/api/block';
 
 import { route } from 'nextjs-routes';
 
 import config from 'configs/app';
-import getBlockTotalReward from 'lib/block/getBlockTotalReward';
 import { WEI } from 'lib/consts';
 import BlockTimestamp from 'ui/blocks/BlockTimestamp';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
@@ -27,8 +28,84 @@ interface Props {
 
 const isRollup = config.features.rollup.isEnabled;
 
+function minerAddressToAddressParam(address: string): AddressParam {
+  const thirdChar = address[4];
+  const thirdDigit = parseInt(thirdChar, 16);
+  return {
+    hash: address,
+    implementation_name: null,
+    name: null,
+    is_contract: false,
+    is_verified: null,
+    ens_domain_name: null,
+    currency: thirdDigit > 7 ? 'qi' : 'quai',
+    private_tags: null,
+    watchlist_names: null,
+    public_tags: null,
+  };
+}
+
+function MinersList({ dynamicRewards, isLoading }: { dynamicRewards: Array<DynamicReward> | undefined; isLoading: boolean | undefined }): ReactElement {
+  if (!dynamicRewards || !dynamicRewards?.length) {
+    return <Box>-</Box>;
+  }
+
+  return (
+    <Box>
+      { dynamicRewards.map((dr, idx) => (
+        <Box key={ idx } mb={ 2 /* Adjust spacing here for miner addresses */ }>
+          <AddressEntity
+            address={ minerAddressToAddressParam(dr.address_hash) }
+            isLoading={ isLoading }
+            truncation="constant"
+          />
+        </Box>
+      )) }
+    </Box>
+  );
+}
+
+function RewardsList({ dynamicRewards }: { dynamicRewards: Array<DynamicReward> | undefined }): React.ReactElement {
+  if (!dynamicRewards || dynamicRewards.length === 0) {
+    return <Box>-</Box>;
+  }
+
+  const formatReward = (dr: DynamicReward): string => {
+    const thirdChar = dr.address_hash[4];
+    if (!thirdChar) {
+      return '-';
+    } // Safeguard if address_hash is invalid
+
+    const thirdDigit = parseInt(thirdChar, 16); // Convert hex char to number
+    if (isNaN(thirdDigit)) {
+      return '-';
+    } // Handle invalid hex characters
+
+    const rewardFloat = parseFloat(dr.reward);
+    return thirdDigit > 7 ?
+      `${ (rewardFloat / 1000).toFixed(3) } qi` : // Currency is qi
+      `${ (rewardFloat / 1e18).toFixed(8) } quai`; // Currency is quai
+  };
+
+  return (
+    <Box>
+      { dynamicRewards.map((dr, idx) => (
+        <Flex key={ idx } align="center" mb={ 2 /* Adjust spacing here for rewards */ }>
+          <Box
+            w="8px"
+            h="8px"
+            borderRadius="full"
+            bg={ dr.finalized ? 'green.500' : 'yellow.500' }
+            mr={ 2 }
+          />
+          <Text fontSize="sm">{ formatReward(dr) }</Text>
+        </Flex>
+      )) }
+    </Box>
+  );
+}
+
 const BlocksTableItem = ({ data, isLoading, enableTimeIncrement }: Props) => {
-  const totalReward = getBlockTotalReward(data);
   const rewardCurrency = data.miner.currency as string;
   const burntFees = BigNumber(data.burnt_fees || 0);
   const txFees = BigNumber(data.tx_fees || 0);
@@ -66,11 +143,6 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement }: Props) => {
           { data.size.toLocaleString() }
         </Skeleton>
       </Td>
-      { !config.UI.views.block.hiddenFields?.miner && (
-        <Td fontSize="sm">
-          <AddressEntity address={ data.miner } isLoading={ isLoading } truncation="constant"/>
-        </Td>
-      ) }
       <Td isNumeric fontSize="sm">
         { data.tx_count > 0 ? (
           <Skeleton isLoaded={ !isLoading } display="inline-block">
@@ -113,9 +185,16 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement }: Props) => {
           </Flex>
         </Td>
       ) }
+      { !config.UI.views.block.hiddenFields?.miner && (
+        <Td fontSize="sm">
+          <Skeleton isLoaded={ !isLoading } display="inline-block">
+            <MinersList dynamicRewards={ data.dynamic_rewards } isLoading={ isLoading }/>
+          </Skeleton>
+        </Td>
+      ) }
       <Td fontSize="sm">
         <Skeleton isLoaded={ !isLoading } display="inline-block">
-          { totalReward.toFixed(8) } { rewardCurrency }
+          <RewardsList dynamicRewards={ data.dynamic_rewards }/>
         </Skeleton>
       </Td>
       { !isRollup && !config.UI.views.block.hiddenFields?.burnt_fees && (
