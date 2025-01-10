@@ -16,7 +16,7 @@ export function useNormalizedExternalTxsQuery(
   const normalizedData = React.useMemo(() => {
     if (!blockExternalTxsQuery.data) {
       return null;
-    } // Explicitly return `null`
+    }
 
     const normalizedItems = blockExternalTxsQuery.data.items.map((item) =>
       normalizeOutboundInboundToTransaction(item, 'external'),
@@ -30,7 +30,7 @@ export function useNormalizedExternalTxsQuery(
 
   return {
     ...blockExternalTxsQuery,
-    data: normalizedData, // Ensure `data` is either `null` or the normalized object
+    data: normalizedData,
   } as QueryWithPagesResult<'block_txs'>;
 }
 export default function useBlockExternalTxsQuery({
@@ -44,18 +44,18 @@ export default function useBlockExternalTxsQuery({
 
   const apiQuery = useQueryWithPages<'outbound_external_txs'>({
     resourceName: 'outbound_external_txs',
-    pathParams: { block_number: heightOrHash }, // Map `heightOrHash` to `block_number`
-    filters: {}, // Add filters if needed, or leave empty
+    pathParams: { block_number: heightOrHash },
+    filters: {},
     options: {
-      enabled: Boolean(tab === 'external'), // Only enable if the tab is 'external'
+      enabled: Boolean(tab === 'external'),
       placeholderData: generateListStub<'outbound_external_txs'>(
-        OUTBOUND_INBOUND_TX, // Use the pre-defined OUTBOUND_INBOUND_TX object as the stub
-        50, // Number of items to generate
+        OUTBOUND_INBOUND_TX,
+        50,
         {
           next_page_params: {
-            block_number: parseInt(heightOrHash), // Dynamic value for the block number
-            items_count: 50, // Number of items per page
-            index: 2, // Placeholder for the next page index
+            block_number: parseInt(heightOrHash),
+            items_count: 50,
+            index: 2,
           },
         },
       ),
@@ -70,7 +70,6 @@ export default function useBlockExternalTxsQuery({
     },
   });
 
-  // Enable refetch if the query fails
   React.useEffect(() => {
     if (apiQuery.isPlaceholderData) {
       return;

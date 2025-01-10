@@ -53,7 +53,7 @@ function MinersList({ dynamicRewards, isLoading }: { dynamicRewards: Array<Dynam
   return (
     <Box>
       { dynamicRewards.map((dr, idx) => (
-        <Box key={ idx } mb={ 2 /* Adjust spacing here for miner addresses */ }>
+        <Box key={ idx } mb={ 2 }>
           <AddressEntity
             address={ minerAddressToAddressParam(dr.address_hash) }
             isLoading={ isLoading }
@@ -74,23 +74,23 @@ function RewardsList({ dynamicRewards }: { dynamicRewards: Array<DynamicReward> 
     const thirdChar = dr.address_hash[4];
     if (!thirdChar) {
       return '-';
-    } // Safeguard if address_hash is invalid
+    }
 
-    const thirdDigit = parseInt(thirdChar, 16); // Convert hex char to number
+    const thirdDigit = parseInt(thirdChar, 16);
     if (isNaN(thirdDigit)) {
       return '-';
-    } // Handle invalid hex characters
+    }
 
     const rewardFloat = parseFloat(dr.reward);
     return thirdDigit > 7 ?
-      `${ (rewardFloat / 1000).toFixed(3) } qi` : // Currency is qi
-      `${ (rewardFloat / 1e18).toFixed(8) } quai`; // Currency is quai
+      `${ (rewardFloat / 1000).toFixed(3) } qi` :
+      `${ (rewardFloat / 1e18).toFixed(8) } quai`;
   };
 
   return (
     <Box>
       { dynamicRewards.map((dr, idx) => (
-        <Flex key={ idx } align="center" mb={ 2 /* Adjust spacing here for rewards */ }>
+        <Flex key={ idx } align="center" mb={ 2 }>
           <Box
             w="8px"
             h="8px"

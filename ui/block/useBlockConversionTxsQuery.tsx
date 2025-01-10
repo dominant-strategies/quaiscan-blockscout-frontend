@@ -49,13 +49,13 @@ export default function useBlockConversionTxsQuery({
     options: {
       enabled: Boolean(tab === 'conversion'), // Only enable if the tab is 'conversion'
       placeholderData: generateListStub<'outbound_conversion_txs'>(
-        OUTBOUND_INBOUND_TX, // Use the pre-defined OUTBOUND_INBOUND_TX object as the stub
-        50, // Number of items to generate
+        OUTBOUND_INBOUND_TX,
+        50,
         {
           next_page_params: {
-            block_number: parseInt(heightOrHash), // Dynamic value for the block number
-            items_count: 50, // Number of items per page
-            index: 2, // Placeholder for the next page index
+            block_number: parseInt(heightOrHash),
+            items_count: 50,
+            index: 2,
           },
         },
       ),
@@ -70,7 +70,6 @@ export default function useBlockConversionTxsQuery({
     },
   });
 
-  // Enable refetch if the query fails
   React.useEffect(() => {
     if (apiQuery.isPlaceholderData) {
       return;

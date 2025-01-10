@@ -320,8 +320,8 @@ export type TransactionsSortingValue = `${ TransactionsSortingField }-${ Transac
 
 export function normalizeOutboundInboundToTransaction(data: OutboundInbound, etxType: 'external' | 'coinbase' | 'conversion'): Transaction {
   const getCurrency = (address: string): string => {
-    const fifthChar = address[4]; // The fifth character (index 4) including `0x`
-    const hexValue = parseInt(fifthChar, 16); // Convert hex to a number
+    const fifthChar = address[4];
+    const hexValue = parseInt(fifthChar, 16);
     return hexValue > 7 ? 'qi' : 'quai';
   };
 
@@ -357,14 +357,14 @@ export function normalizeOutboundInboundToTransaction(data: OutboundInbound, etx
     from: createAddressParam(data.outbound.from_address),
     created_contract: null,
     hash: data.outbound.hash,
-    confirmations: 0, // No confirmation logic provided; defaulting to 0
+    confirmations: 0,
     status,
     result,
     block: data.inbound?.block_hash ?
       parseInt(data.inbound.block_hash, 16) :
-      null, // Convert block hash to a number if present
+      null,
     timestamp: data.inbound?.block_timestamp || null,
-    confirmation_duration: null, // Not specified, defaulting to null
+    confirmation_duration: null,
     value: data.outbound.value,
     fee: {
       type: '',
@@ -375,43 +375,43 @@ export function normalizeOutboundInboundToTransaction(data: OutboundInbound, etx
     gas_limit: data.inbound?.gas || data.outbound.gas,
     max_fee_per_gas: data.inbound?.max_fee_per_gas || null,
     max_priority_fee_per_gas: data.inbound?.max_priority_fee_per_gas || null,
-    priority_fee: null, // Not mapped
-    base_fee_per_gas: null, // Not mapped
-    tx_burnt_fee: null, // Not mapped
+    priority_fee: null,
+    base_fee_per_gas: null,
+    tx_burnt_fee: null,
     nonce: data.inbound?.nonce || 0,
-    position: null, // Not specified
-    revert_reason: null, // Not mapped
-    raw_input: '0x', // Simple placeholder for raw input
-    decoded_input: null, // Not mapped
-    token_transfers: null, // Not mapped
-    token_transfers_overflow: false, // Defaulting to false
-    exchange_rate: null, // Not mapped
-    method: null, // Not mapped
-    tx_types: [ etxType ], // Defaulting to empty
-    tx_tag: null, // Not mapped
-    actions: [], // Defaulting to empty
-    l1_fee: undefined, // Defaulting to null
-    l1_fee_scalar: undefined, // Defaulting to null
-    l1_gas_price: undefined, // Defaulting to null
-    l1_gas_used: undefined, // Defaulting to null
-    has_error_in_internal_txs: null, // Defaulting to null
-    op_withdrawals: [], // Defaulting to empty
-    wrapped: undefined, // Not mapped
-    stability_fee: undefined, // Not mapped
-    zkevm_verify_hash: undefined, // Not mapped
-    zkevm_batch_number: undefined, // Not mapped
-    zkevm_status: undefined, // Not mapped
-    zkevm_sequence_hash: undefined, // Not mapped
-    blob_versioned_hashes: undefined, // Not mapped
-    blob_gas_used: undefined, // Not mapped
-    blob_gas_price: undefined, // Not mapped
-    burnt_blob_fee: undefined, // Not mapped
-    max_fee_per_blob_gas: undefined, // Not mapped
-    shard_id: undefined, // Not mapped
-    inputs: undefined, // Not mapped
-    outputs: undefined, // Not mapped
-    is_etx: true, // Defaulting to false
-    type: data.inbound?.type ?? null, // Defaulting to 0
-    etx_type: etxType, // Not mapped
+    position: null,
+    revert_reason: null,
+    raw_input: '0x',
+    decoded_input: null,
+    token_transfers: null,
+    token_transfers_overflow: false,
+    exchange_rate: null,
+    method: null,
+    tx_types: [ etxType ],
+    tx_tag: null,
+    actions: [],
+    l1_fee: undefined,
+    l1_fee_scalar: undefined,
+    l1_gas_price: undefined,
+    l1_gas_used: undefined,
+    has_error_in_internal_txs: null,
+    op_withdrawals: [],
+    wrapped: undefined,
+    stability_fee: undefined,
+    zkevm_verify_hash: undefined,
+    zkevm_batch_number: undefined,
+    zkevm_status: undefined,
+    zkevm_sequence_hash: undefined,
+    blob_versioned_hashes: undefined,
+    blob_gas_used: undefined,
+    blob_gas_price: undefined,
+    burnt_blob_fee: undefined,
+    max_fee_per_blob_gas: undefined,
+    shard_id: undefined,
+    inputs: undefined,
+    outputs: undefined,
+    is_etx: true,
+    type: data.inbound?.type ?? null,
+    etx_type: etxType,
   };
 }

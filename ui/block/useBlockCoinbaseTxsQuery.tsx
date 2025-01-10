@@ -1,4 +1,3 @@
-// import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
 import { normalizeOutboundInboundToTransaction } from '../../types/api/transaction';
@@ -17,7 +16,7 @@ export function useNormalizedCoinbaseTxsQuery(
   const normalizedData = React.useMemo(() => {
     if (!blockCoinbaseTxsQuery.data) {
       return null;
-    } // Explicitly return `null`
+    }
 
     const normalizedItems = blockCoinbaseTxsQuery.data.items.map((item) =>
       normalizeOutboundInboundToTransaction(item, 'coinbase'),
@@ -31,7 +30,7 @@ export function useNormalizedCoinbaseTxsQuery(
 
   return {
     ...blockCoinbaseTxsQuery,
-    data: normalizedData, // Ensure `data` is either `null` or the normalized object
+    data: normalizedData,
   } as QueryWithPagesResult<'block_txs'>;
 }
 export default function useBlockCoinbaseTxsQuery({
@@ -46,17 +45,17 @@ export default function useBlockCoinbaseTxsQuery({
   const apiQuery = useQueryWithPages<'outbound_coinbase_txs'>({
     resourceName: 'outbound_coinbase_txs',
     pathParams: { block_number: heightOrHash }, // Map `heightOrHash` to `block_number`
-    filters: {}, // Add filters if needed, or leave empty
+    filters: {},
     options: {
-      enabled: Boolean(tab === 'coinbase'), // Only enable if the tab is 'coinbase'
+      enabled: Boolean(tab === 'coinbase'),
       placeholderData: generateListStub<'outbound_coinbase_txs'>(
-        OUTBOUND_INBOUND_TX, // Use the pre-defined OUTBOUND_INBOUND_TX object as the stub
-        50, // Number of items to generate
+        OUTBOUND_INBOUND_TX,
+        50,
         {
           next_page_params: {
-            block_number: parseInt(heightOrHash), // Dynamic value for the block number
-            items_count: 50, // Number of items per page
-            index: 2, // Placeholder for the next page index
+            block_number: parseInt(heightOrHash),
+            items_count: 50,
+            index: 2,
           },
         },
       ),
@@ -71,7 +70,6 @@ export default function useBlockCoinbaseTxsQuery({
     },
   });
 
-  // Enable refetch if the query fails
   React.useEffect(() => {
     if (apiQuery.isPlaceholderData) {
       return;
