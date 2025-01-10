@@ -14,7 +14,7 @@ import getQueryParamString from 'lib/router/getQueryParamString';
 import BlockDetails from 'ui/block/BlockDetails';
 import BlockWithdrawals from 'ui/block/BlockWithdrawals';
 import useBlockBlobTxsQuery from 'ui/block/useBlockBlobTxsQuery';
-import useBlockCoinbaseTxsQuery from 'ui/block/useBlockCoinbaseTxsQuery';
+import useBlockCoinbaseTxsQuery, { useNormalizedCoinbaseTxsQuery } from 'ui/block/useBlockCoinbaseTxsQuery';
 import useBlockConversionTxsQuery from 'ui/block/useBlockConversionTxsQuery';
 import useBlockExternalTxsQuery from 'ui/block/useBlockExternalTxsQuery';
 import useBlockQuery from 'ui/block/useBlockQuery';
@@ -45,11 +45,14 @@ const BlockPageContent = () => {
 
   const blockQuery = useBlockQuery({ heightOrHash });
   const blockTxsQuery = useBlockTxsQuery({ heightOrHash, blockQuery, tab });
-  const blockCoinbaseTxsQuery = useBlockCoinbaseTxsQuery({ heightOrHash, blockQuery, tab });
-  const blockExternalTxsQuery = useBlockExternalTxsQuery({ heightOrHash, blockQuery, tab });
-  const blockConversionTxsQuery = useBlockConversionTxsQuery({ heightOrHash, blockQuery, tab });
+  const blockCoinbaseTxsQuery = useBlockCoinbaseTxsQuery({ heightOrHash, tab });
+  const blockExternalTxsQuery = useBlockExternalTxsQuery({ heightOrHash, tab });
+  const blockConversionTxsQuery = useBlockConversionTxsQuery({ heightOrHash, tab });
   const blockWithdrawalsQuery = useBlockWithdrawalsQuery({ heightOrHash, blockQuery, tab });
   const blockBlobTxsQuery = useBlockBlobTxsQuery({ heightOrHash, blockQuery, tab });
+  const normalizedCoinbaseTxsQuery = useNormalizedCoinbaseTxsQuery(blockCoinbaseTxsQuery);
+  const normalizedConversionTxsQuery = useNormalizedCoinbaseTxsQuery(blockConversionTxsQuery);
+  const normalizedExternalTxsQuery = useNormalizedCoinbaseTxsQuery(blockExternalTxsQuery);
 
   const tabs: Array<RoutedTab> = React.useMemo(
     () =>
@@ -82,21 +85,33 @@ const BlockPageContent = () => {
           id: 'coinbase',
           title: 'Coinbases',
           component: (
-            <TxsWithFrontendSorting query={ blockCoinbaseTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
+            <TxsWithFrontendSorting
+              query={ normalizedCoinbaseTxsQuery }
+              showBlockInfo={ false }
+              showSocketInfo={ false }
+            />
           ),
         },
         {
           id: 'external',
           title: 'Externals',
           component: (
-            <TxsWithFrontendSorting query={ blockExternalTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
+            <TxsWithFrontendSorting
+              query={ normalizedExternalTxsQuery }
+              showBlockInfo={ false }
+              showSocketInfo={ false }
+            />
           ),
         },
         {
           id: 'conversion',
           title: 'Conversions',
           component: (
-            <TxsWithFrontendSorting query={ blockConversionTxsQuery } showBlockInfo={ false } showSocketInfo={ false }/>
+            <TxsWithFrontendSorting
+              query={ normalizedConversionTxsQuery }
+              showBlockInfo={ false }
+              showSocketInfo={ false }
+            />
           ),
         },
         blockQuery.data?.blob_tx_count ?
@@ -135,14 +150,13 @@ const BlockPageContent = () => {
           } :
           null,
       ].filter(Boolean),
-    [
-      blockBlobTxsQuery,
-      blockQuery,
+    [ blockQuery,
       blockTxsQuery,
+      normalizedCoinbaseTxsQuery,
+      normalizedExternalTxsQuery,
+      normalizedConversionTxsQuery,
+      blockBlobTxsQuery,
       blockWithdrawalsQuery,
-      blockCoinbaseTxsQuery,
-      blockExternalTxsQuery,
-      blockConversionTxsQuery,
     ],
   );
 

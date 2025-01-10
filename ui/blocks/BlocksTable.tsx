@@ -22,8 +22,8 @@ interface Props {
   showSocketInfo?: boolean;
 }
 
-const VALIDATOR_COL_WEIGHT = 23;
-const GAS_COL_WEIGHT = 33;
+const VALIDATOR_COL_WEIGHT = 28;
+const GAS_COL_WEIGHT = 28;
 const REWARD_COL_WEIGHT = 22;
 const FEES_COL_WEIGHT = 22;
 
@@ -43,17 +43,17 @@ const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum
           <Tr>
             <Th width="125px">Block</Th>
             <Th width="120px">Size, bytes</Th>
+            <Th width="64px" isNumeric>
+              Txn
+            </Th>
+            <Th width={ `${ (GAS_COL_WEIGHT / widthBase) * 100 }%` }>Gas used</Th>
             { !config.UI.views.block.hiddenFields?.miner && (
               <Th width={ `${ (VALIDATOR_COL_WEIGHT / widthBase) * 100 }%` } minW="160px">
                 { capitalize(getNetworkValidatorTitle()) }
               </Th>
             ) }
-            <Th width="64px" isNumeric>
-              Txn
-            </Th>
-            <Th width={ `${ (GAS_COL_WEIGHT / widthBase) * 100 }%` }>Gas used</Th>
             { !isRollup && !config.UI.views.block.hiddenFields?.total_reward && (
-              <Th width={ `${ (REWARD_COL_WEIGHT / widthBase) * 100 }%` }>Reward</Th>
+              <Th width={ `${ (REWARD_COL_WEIGHT / widthBase) * 100 }%` }>Rewards</Th>
             ) }
             { !isRollup && !config.UI.views.block.hiddenFields?.burnt_fees && (
               <Th width={ `${ (FEES_COL_WEIGHT / widthBase) * 100 }%` }>Burnt fees</Th>

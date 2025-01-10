@@ -1,6 +1,6 @@
 import type { AddressParam } from 'types/api/addressParams';
 import type { Reward } from 'types/api/reward';
-import type { ExternalTransaction, Transaction, UtxoTransaction } from 'types/api/transaction';
+import type { ExternalTransaction, OutboundInbound, Transaction, UtxoTransaction } from 'types/api/transaction';
 
 export type BlockType = 'block' | 'reorg' | 'uncle';
 
@@ -70,9 +70,17 @@ export interface Block {
   uncled_s?: string;
   interlink_hashes?: string;
   wo_header?: WoHeader;
+  dynamic_rewards?: Array<DynamicReward>;
 
   // Shard ID
   shard_id?: string;
+}
+
+export interface DynamicReward {
+  address_hash: string;
+  block_hash: string;
+  finalized: boolean;
+  reward: string;
 }
 
 export interface BlocksResponse {
@@ -85,6 +93,15 @@ export interface BlocksResponse {
 
 export interface BlockTransactionsResponse {
   items: Array<Transaction>;
+  next_page_params: {
+    block_number: number;
+    items_count: number;
+    index: number;
+  } | null;
+}
+
+export interface OutboundInboundTransactionResponse {
+  items: Array<OutboundInbound>;
   next_page_params: {
     block_number: number;
     items_count: number;
