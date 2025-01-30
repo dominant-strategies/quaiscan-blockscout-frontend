@@ -177,7 +177,7 @@ const ContractCode = ({ addressHash, noSocket }: Props) => {
             href="https://docs.blockscout.com/about/features/ethereum-bytecode-database-microservice"
             fontSize="md"
           >
-            Blockscout Bytecode Database
+            Quaiscan Bytecode Database
           </LinkExternal>
         </Alert>
       );
@@ -214,7 +214,7 @@ const ContractCode = ({ addressHash, noSocket }: Props) => {
         ) }
         { !data?.is_verified && data?.verified_twin_address_hash && !data?.minimal_proxy_address_hash && (
           <Alert status="warning" whiteSpace="pre-wrap" flexWrap="wrap">
-            <span>Contract is not verified. However, we found a verified contract with the same bytecode in Blockscout DB </span>
+            <span>Contract is not verified. However, we found a verified contract with the same bytecode in Quaiscan DB </span>
             <AddressEntity
               address={{ hash: data.verified_twin_address_hash, is_contract: true, implementation_name: null }}
               truncation="constant"

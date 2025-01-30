@@ -20,7 +20,7 @@ export const PUBLIC_TAG: PublicTag = {
   additional_comment: 'my comment',
   addresses: [ ADDRESS_HASH ],
   addresses_with_info: [ ADDRESS_PARAMS ],
-  company: 'Blockscout',
+  company: 'Quaiscan',
   email: 'john.doe@example.com',
   full_name: 'name',
   id: 1,

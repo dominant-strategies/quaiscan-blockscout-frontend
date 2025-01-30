@@ -82,7 +82,7 @@ const ChartWidget = ({ items, title, description, isLoading, className, isError,
           })
           .then((dataUrl) => {
             const link = document.createElement('a');
-            link.download = `${ title } (Blockscout chart).png`;
+            link.download = `${ title } (Quaiscan chart).png`;
             link.href = dataUrl;
             link.click();
             link.remove();
@@ -100,7 +100,7 @@ const ChartWidget = ({ items, title, description, isLoading, className, isError,
         dayjs(item.date).format('YYYY-MM-DD'), String(item.value),
       ]);
 
-      saveAsCSV(headerRows, dataRows, `${ title } (Blockscout stats)`);
+      saveAsCSV(headerRows, dataRows, `${ title } (Quaiscan stats)`);
     }
   }, [ items, title ]);
 

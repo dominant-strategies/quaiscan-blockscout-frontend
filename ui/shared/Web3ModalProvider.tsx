@@ -54,7 +54,7 @@ const Provider = ({ children, fallback }: Props) => {
     <WagmiProvider config={ wagmiConfig }>
       <RainbowKitProvider
         appInfo={{
-          appName: 'QUAI Blockscout',
+          appName: 'QUAISCAN',
           disclaimer: Disclaimer,
         }}
         modalSize="compact"

@@ -25,7 +25,7 @@ const currentChain: ChainConfig = {
   },
   blockExplorers: {
     'default': {
-      name: 'Blockscout',
+      name: 'Quaiscan',
       url: config.app.baseUrl,
     },
   },
