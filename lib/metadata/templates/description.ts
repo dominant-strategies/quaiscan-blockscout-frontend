@@ -2,7 +2,7 @@ import type { Route } from 'nextjs-routes';
 
 // equal og:description
 // eslint-disable-next-line max-len
-const DEFAULT_TEMPLATE = 'Blockscout is the #1 open-source blockchain explorer available today. 100+ chains and counting rely on Blockscout data availability, APIs, and ecosystem tools to support their networks.';
+const DEFAULT_TEMPLATE = 'Quaiscan is the #1 blockchain explorer for Quai network.';
 
 // FIXME all page descriptions will be updated later
 const TEMPLATE_MAP: Record<Route['pathname'], string> = {

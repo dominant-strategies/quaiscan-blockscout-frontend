@@ -59,7 +59,7 @@ const MarketplaceAppCard = ({
   const [ integrationIcon, integrationIconColor, integrationText ] = React.useMemo(() => {
     let icon: IconName = 'integration/partial';
     let color = 'gray.400';
-    let text = 'This app opens in Blockscout without Blockscout wallet functionality. Use your external web3 wallet to connect directly to this application';
+    let text = 'This app opens in Quaiscan without Quaiscan wallet functionality. Use your external web3 wallet to connect directly to this application';
 
     if (external) {
       icon = 'arrows/north-east';
@@ -67,7 +67,7 @@ const MarketplaceAppCard = ({
     } else if (internalWallet) {
       icon = 'integration/full';
       color = 'green.500';
-      text = 'This app opens in Blockscout and your Blockscout wallet connects automatically';
+      text = 'This app opens in Quaiscan and your Quaiscan wallet connects automatically';
     }
 
     return [ icon, color, text ];

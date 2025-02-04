@@ -12,12 +12,12 @@ type Props = {
 const MarketplaceAppAlert = ({ internalWallet, isWalletConnected }: Props) => {
   const message = React.useMemo(() => {
     let icon: IconName = 'wallet';
-    let text = 'Connect your wallet to Blockscout for full-featured access';
+    let text = 'Connect your wallet to Quaiscan for full-featured access';
     let status: 'warning' | 'success' = 'warning';
 
     if (isWalletConnected && internalWallet) {
       icon = 'integration/full';
-      text = 'Your wallet is connected with Blockscout';
+      text = 'Your wallet is connected with Quaiscan';
       status = 'success';
     } else if (!internalWallet) {
       icon = 'integration/partial';

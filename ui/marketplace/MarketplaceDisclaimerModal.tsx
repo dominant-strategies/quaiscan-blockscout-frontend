@@ -42,7 +42,7 @@ const MarketplaceDisclaimerModal = ({ isOpen, onClose, appId }: Props) => {
 
         <ModalBody>
           <Text color={ useColorModeValue('gray.800', 'whiteAlpha.800') }>
-            You are now accessing a third-party app. Blockscout does not own, control, maintain, or audit 3rd party apps,{ ' ' }
+            You are now accessing a third-party app. Quaiscan does not own, control, maintain, or audit 3rd party apps,{ ' ' }
             and is not liable for any losses associated with these interactions. Please do so at your own risk.
             <br/><br/>
             By clicking continue, you agree that you understand the risks and have read the Disclaimer.

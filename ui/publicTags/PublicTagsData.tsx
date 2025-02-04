@@ -47,7 +47,7 @@ const PublicTagsData = ({ changeToFormScreen, onTagDelete }: Props) => {
 
   const description = (
     <AccountPageDescription>
-      You can request a public category tag which is displayed to all Blockscout users.
+      You can request a public category tag which is displayed to all Quaiscan users.
       Public tags may be added to contract or external addresses, and any associated transactions will inherit that tag.
       Clicking a tag opens a page with related information and helps provide context and data organization.
       Requests are sent to a moderator for review and approval. This process can take several days.
