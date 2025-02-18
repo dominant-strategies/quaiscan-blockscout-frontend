@@ -89,30 +89,6 @@ const TxAdditionalInfoContent = ({ tx }: { tx: Transaction }) => {
           </Flex>
         </Box>
       ) }
-      { !config.UI.views.tx.hiddenFields?.gas_fees &&
-        (tx.base_fee_per_gas !== null || tx.max_fee_per_gas !== null || tx.max_priority_fee_per_gas !== null) && (
-        <Box { ...sectionProps } mb={ 4 }>
-          <Text { ...sectionTitleProps }>Gas fees ({ currencyUnits.gwei })</Text>
-          { tx.base_fee_per_gas !== null && (
-            <Box>
-              <Text as="span" fontWeight="500">Base: </Text>
-              <Text fontWeight="700" as="span">{ getValueWithUnit(tx.base_fee_per_gas, 'gwei').toFormat() }</Text>
-            </Box>
-          ) }
-          { tx.max_fee_per_gas !== null && (
-            <Box mt={ 1 }>
-              <Text as="span" fontWeight="500">Max: </Text>
-              <Text fontWeight="700" as="span">{ getValueWithUnit(tx.max_fee_per_gas, 'gwei').toFormat() }</Text>
-            </Box>
-          ) }
-          { tx.max_priority_fee_per_gas !== null && (
-            <Box mt={ 1 }>
-              <Text as="span" fontWeight="500">Max priority: </Text>
-              <Text fontWeight="700" as="span">{ getValueWithUnit(tx.max_priority_fee_per_gas, 'gwei').toFormat() }</Text>
-            </Box>
-          ) }
-        </Box>
-      ) }
       { !(tx.blob_versioned_hashes && tx.blob_versioned_hashes.length > 0) && (
         <Box { ...sectionProps } mb={ 4 }>
           <Text { ...sectionTitleProps }>Others</Text>

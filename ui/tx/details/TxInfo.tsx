@@ -109,6 +109,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         </chakra.span>
       </Tooltip>
     ) : null;
+  const fee = data.max_fee_per_gas && data.gas_used ? (parseInt(data.max_fee_per_gas)) * (parseInt(data.gas_used)) : undefined;
 
   return (
     <Grid
@@ -339,7 +340,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
             <TxFeeStability data={ data.stability_fee } isLoading={ isLoading }/>
           ) : (
             <CurrencyValue
-              value={ data.fee.value }
+              value={ fee?.toString() }
               currency={ data.from.currency ? data.from.currency : currencyUnits.ether }
               exchangeRate={ data.exchange_rate }
               flexWrap="wrap"
@@ -376,52 +377,6 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
             />
           </DetailsInfoItem>
 
-          { !config.UI.views.tx.hiddenFields?.gas_fees &&
-            (data.base_fee_per_gas || data.max_fee_per_gas || data.max_priority_fee_per_gas) && (
-            <DetailsInfoItem
-              title={ `Gas fees (${ currencyUnits.gwei })` }
-              // eslint-disable-next-line max-len
-              hint={ `
-                Base Fee refers to the network Base Fee at the time of the block,
-                while Max Fee & Max Priority Fee refer to the max amount a user is willing to pay
-                for their tx & to give to the ${ getNetworkValidatorTitle() } respectively
-              ` }
-              isLoading={ isLoading }
-            >
-              { data.base_fee_per_gas && (
-                <Skeleton isLoaded={ !isLoading }>
-                  <Text as="span" fontWeight="500">
-                      Base:{ ' ' }
-                  </Text>
-                  <Text fontWeight="600" as="span">
-                    { BigNumber(data.base_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() }
-                  </Text>
-                  { (data.max_fee_per_gas || data.max_priority_fee_per_gas) && <TextSeparator/> }
-                </Skeleton>
-              ) }
-              { data.max_fee_per_gas && (
-                <Skeleton isLoaded={ !isLoading }>
-                  <Text as="span" fontWeight="500">
-                      Max:{ ' ' }
-                  </Text>
-                  <Text fontWeight="600" as="span">
-                    { BigNumber(data.max_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() }
-                  </Text>
-                  { data.max_priority_fee_per_gas && <TextSeparator/> }
-                </Skeleton>
-              ) }
-              { data.max_priority_fee_per_gas && (
-                <Skeleton isLoaded={ !isLoading }>
-                  <Text as="span" fontWeight="500">
-                      Miner Tip:{ ' ' }
-                  </Text>
-                  <Text fontWeight="600" as="span">
-                    { BigNumber(data.max_priority_fee_per_gas).dividedBy(WEI_IN_GWEI).toFixed() }
-                  </Text>
-                </Skeleton>
-              ) }
-            </DetailsInfoItem>
-          ) }
         </>
       ) }
 

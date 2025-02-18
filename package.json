@@ -157,5 +157,8 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
+  },
+  "volta": {
+    "node": "20.11.0"
   }
 }

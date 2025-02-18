@@ -335,29 +335,6 @@ const BlockDetails = ({ query }: Props) => {
           ) }
         </DetailsInfoItem>
       ) }
-      { !config.UI.views.block.hiddenFields?.burnt_fees && !burntFees.isEqualTo(ZERO) && (
-        <DetailsInfoItem
-          title="Burnt fees"
-          hint={ `Amount of ${
-            config.chain.currency.symbol || 'native token'
-          } burned from transactions included in the block.
-
-          Equals Block Base Fee per Gas * Gas Used` }
-          isLoading={ isPlaceholderData }
-        >
-          <IconSvg name="flame" boxSize={ 5 } color="gray.500" isLoading={ isPlaceholderData }/>
-          <Skeleton isLoaded={ !isPlaceholderData } ml={ 2 }>
-            { burntFees.dividedBy(WEI).toFixed() } { currencyUnits.ether }
-          </Skeleton>
-          { !txFees.isEqualTo(ZERO) && (
-            <Tooltip label="Burnt fees / Txn fees * 100%">
-              <Box>
-                <Utilization ml={ 4 } value={ burntFees.dividedBy(txFees).toNumber() } isLoading={ isPlaceholderData }/>
-              </Box>
-            </Tooltip>
-          ) }
-        </DetailsInfoItem>
-      ) }
       { data.priority_fee !== null && BigNumber(data.priority_fee).gt(ZERO) && (
         <DetailsInfoItem
           title="Priority fee / Tip"

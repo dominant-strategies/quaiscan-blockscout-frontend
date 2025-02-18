@@ -22,10 +22,10 @@ interface Props {
   showSocketInfo?: boolean;
 }
 
-const VALIDATOR_COL_WEIGHT = 28;
-const GAS_COL_WEIGHT = 28;
-const REWARD_COL_WEIGHT = 22;
-const FEES_COL_WEIGHT = 22;
+const VALIDATOR_COL_WEIGHT = 36;
+const GAS_COL_WEIGHT = 27;
+const REWARD_COL_WEIGHT = 26;
+const FEES_COL_WEIGHT = 0;
 
 const isRollup = config.features.rollup.isEnabled;
 
@@ -54,9 +54,6 @@ const BlocksTable = ({ data, isLoading, top, page, showSocketInfo, socketInfoNum
             ) }
             { !isRollup && !config.UI.views.block.hiddenFields?.total_reward && (
               <Th width={ `${ (REWARD_COL_WEIGHT / widthBase) * 100 }%` }>Rewards</Th>
-            ) }
-            { !isRollup && !config.UI.views.block.hiddenFields?.burnt_fees && (
-              <Th width={ `${ (FEES_COL_WEIGHT / widthBase) * 100 }%` }>Burnt fees</Th>
             ) }
           </Tr>
         </Thead>

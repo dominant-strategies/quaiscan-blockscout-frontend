@@ -197,21 +197,6 @@ const BlocksTableItem = ({ data, isLoading, enableTimeIncrement }: Props) => {
           <RewardsList dynamicRewards={ data.dynamic_rewards }/>
         </Skeleton>
       </Td>
-      { !isRollup && !config.UI.views.block.hiddenFields?.burnt_fees && (
-        <Td fontSize="sm">
-          <Flex alignItems="center" columnGap={ 2 }>
-            <IconSvg name="flame" boxSize={ 5 } color={ burntFeesIconColor } isLoading={ isLoading }/>
-            <Skeleton isLoaded={ !isLoading } display="inline-block">
-              { burntFees.dividedBy(WEI).toFixed(8) } { rewardCurrency }
-            </Skeleton>
-          </Flex>
-          <Tooltip label={ isLoading ? undefined : 'Burnt fees / Txn fees * 100%' }>
-            <Box w="min-content">
-              <Utilization mt={ 2 } value={ burntFees.div(txFees).toNumber() } isLoading={ isLoading }/>
-            </Box>
-          </Tooltip>
-        </Td>
-      ) }
     </Tr>
   );
 };

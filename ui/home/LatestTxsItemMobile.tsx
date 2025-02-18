@@ -25,6 +25,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
   const { shards } = useShards();
   const dataTo = tx.to ? tx.to : tx.created_contract;
   const timeAgo = useTimeAgoIncrement(tx.timestamp || '0', true);
+  const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
 
   return (
     <Box
@@ -77,7 +78,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
             <TxFeeStability data={ tx.stability_fee } accuracy={ 5 } color="text_secondary" hideUsd/>
           ) : (
             <Text as="span" variant="secondary">
-              { tx.fee.value ? <CurrencyValue value={ tx.fee.value }/> : '-' }
+              { fee ? <CurrencyValue value={ fee }/> : '-' }
             </Text>
           ) }
         </Skeleton>

@@ -30,6 +30,7 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
   const dataTo = tx.to ? tx.to : tx.created_contract;
   const currency = tx.from?.currency ? tx.from?.currency : '';
   const timeAgo = useTimeAgoIncrement(tx.timestamp, enableTimeIncrement);
+  const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
 
   return (
     <Tr
@@ -105,8 +106,8 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
           { /* eslint-disable-next-line no-nested-ternary */ }
           { tx.stability_fee ? (
             <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } accuracy={ 8 } justifyContent="end" hideUsd/>
-          ) : tx.fee.value ? (
-            <CurrencyValue value={ tx.fee.value } currency={ currency } accuracy={ 8 } isLoading={ isLoading }/>
+          ) : fee ? (
+            <CurrencyValue value={ fee.toString() } currency={ currency } accuracy={ 8 } isLoading={ isLoading }/>
           ) : (
             '-'
           ) }

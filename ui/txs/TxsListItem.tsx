@@ -30,6 +30,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
   const dataTo = tx.to ? tx.to : tx.created_contract;
 
   const timeAgo = useTimeAgoIncrement(tx.timestamp, enableTimeIncrement);
+  const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
 
   return (
     <ListItemMobile display="block" width="100%" isAnimated key={ tx.hash }>
@@ -111,7 +112,7 @@ const TxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTimeI
                 <TxFeeStability data={ tx.stability_fee } isLoading={ isLoading } hideUsd/>
               ) : (
                 <Skeleton isLoaded={ !isLoading } display="inline-block" variant="text_secondary" whiteSpace="pre">
-                  { tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracyUsd={ 2 } accuracy={ 8 }/> : '0' }
+                  { fee ? <CurrencyValue value={ fee } accuracyUsd={ 2 } accuracy={ 8 }/> : '0' }
                   { config.UI.views.tx.hiddenFields?.fee_currency ? '' : ` ${ currencyUnits.ether }` }
                 </Skeleton>
               ) }

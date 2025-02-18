@@ -29,6 +29,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
   const timeAgo = useTimeAgoIncrement(tx.timestamp || '0', true);
   const columnNum = config.UI.views.tx.hiddenFields?.value && config.UI.views.tx.hiddenFields?.tx_fee ? 2 : 3;
   const fromCurrency = getCurrencyFromAddress(tx.from);
+  const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
 
   return (
     <Grid
@@ -93,7 +94,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
               <TxFeeStability data={ tx.stability_fee } accuracy={ 5 } color="text_secondary" hideUsd/>
             ) : (
               <Text as="span" variant="secondary">
-                { tx.fee.value ? <CurrencyValue value={ tx.fee.value } accuracyUsd={ 2 } accuracy={ 8 }/> : '-' }
+                { fee ? <CurrencyValue value={ fee } currency={ fromCurrency } accuracyUsd={ 2 } accuracy={ 8 }/> : '-' }
               </Text>
             ) }
           </Skeleton>

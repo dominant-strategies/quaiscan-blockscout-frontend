@@ -83,7 +83,12 @@ export default function useBlockTxsQuery({ heightOrHash, blockQuery, tab }: Para
             if (typeof tx === 'string') {
               return;
             }
+            const maxFee = tx.maxFeePerGas ? BigInt(tx.maxFeePerGas) : BigInt(0);
+            const gasLimit = tx.gas ? BigInt(tx.gas) : BigInt(0);
 
+            // log maxFee and gasLimit
+            console.log(`maxFee: ${maxFee}`);
+            console.log(`gasLimit: ${gasLimit}`);
             return {
               from: { ...unknownAddress, hash: tx.from as string },
               to: tx.to ? { ...unknownAddress, hash: tx.to as string } : null,
@@ -105,7 +110,7 @@ export default function useBlockTxsQuery({ heightOrHash, blockQuery, tab }: Para
               gas_limit: tx.gas.toString(),
               confirmations: 0,
               fee: {
-                value: null,
+                value: (maxFee * gasLimit).toString(),
                 type: 'actual',
               },
               created_contract: null,
