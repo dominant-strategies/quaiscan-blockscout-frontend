@@ -29,5 +29,5 @@ jobs:
 
       - name: Build and push
         run: |
-          docker build -t ${{ env.IMAGE_REPOSITORY }}:staging-${{ env.IMAGE_TAG }} -t ${{ env.IMAGE_REPOSITORY }}:staging-latest --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID }} --build-arg GIT_COMMIT_SHA=${{ env.IMAGE_TAG }} --build-arg GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }} -f Dockerfile .
+          docker build -t ${{ env.IMAGE_REPOSITORY }}:staging-${{ env.IMAGE_TAG }} -t ${{ env.IMAGE_REPOSITORY }}:staging-latest --build-arg NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_ANALYTICS_PROPERTY_ID }} --build-arg GIT_COMMIT_SHA=${{ env.IMAGE_TAG }} --build-arg NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=552a5cc5f7b5b3db82cf993ebcb3da17 --build-arg GIT_TAG=${{ github.ref_type == 'tag' && github.ref_name || '' }} -f Dockerfile .
           docker push ${{ env.IMAGE_REPOSITORY }} --all-tags
