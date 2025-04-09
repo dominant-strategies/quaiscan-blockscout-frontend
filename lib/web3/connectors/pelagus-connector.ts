@@ -3,6 +3,23 @@ import type { Wallet } from '@rainbow-me/rainbowkit';
 import { createConnector } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
+interface PelagusWindowProvider {
+  isPelagus?: boolean;
+  providerInfo?: {
+    version: number;
+  };
+  send: (method: string, params?: Array<unknown>) => Promise<unknown>;
+  request: (args: { method: string; params?: Array<unknown> }) => Promise<unknown>;
+  on: (event: string, callback: (...args: Array<unknown>) => void) => void;
+  removeListener: (event: string, callback: (...args: Array<unknown>) => void) => void;
+}
+
+declare global {
+  interface Window {
+    pelagus?: PelagusWindowProvider;
+  }
+}
+
 export const pelagusWallet = (): Wallet => ({
   id: 'pelagus',
   name: 'Pelagus Wallet',
@@ -42,7 +59,10 @@ export const pelagusWallet = (): Wallet => ({
             id: walletDetails.rkDetails.id,
             name: walletDetails.rkDetails.name,
             provider: (window) => {
-              return window?.ethereum?.providers?.find((p) => 'isPelagus' in p && p.isPelagus) || window?.ethereum;
+              if (typeof window === 'undefined') {
+                return undefined;
+              }
+              return window.pelagus;
             },
           }),
         })(config),
