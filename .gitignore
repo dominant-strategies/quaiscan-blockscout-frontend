@@ -25,6 +25,7 @@
 .DS_Store
 *.pem
 .tools
+tools/scripts/dev.sh
 
 # debug
 npm-debug.log*
