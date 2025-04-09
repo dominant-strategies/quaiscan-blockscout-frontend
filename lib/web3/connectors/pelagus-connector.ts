@@ -1,22 +1,22 @@
 'use client';
 import type { Wallet } from '@rainbow-me/rainbowkit';
+import type { EIP1193Provider } from 'viem';
 import { createConnector } from 'wagmi';
 import { injected } from 'wagmi/connectors';
 
-interface PelagusWindowProvider {
+interface PelagusWindowProvider extends EIP1193Provider {
   isPelagus?: boolean;
   providerInfo?: {
     version: number;
   };
-  send: (method: string, params?: Array<unknown>) => Promise<unknown>;
-  request: (args: { method: string; params?: Array<unknown> }) => Promise<unknown>;
-  on: (event: string, callback: (...args: Array<unknown>) => void) => void;
-  removeListener: (event: string, callback: (...args: Array<unknown>) => void) => void;
 }
 
 declare global {
   interface Window {
     pelagus?: PelagusWindowProvider;
+    ethereum?: {
+      providers?: Array<PelagusWindowProvider>;
+    };
   }
 }
 
@@ -62,7 +62,7 @@ export const pelagusWallet = (): Wallet => ({
               if (typeof window === 'undefined') {
                 return undefined;
               }
-              return window.pelagus;
+              return (window as Window & { pelagus?: PelagusWindowProvider }).pelagus;
             },
           }),
         })(config),
