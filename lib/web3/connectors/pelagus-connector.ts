@@ -11,17 +11,9 @@ interface PelagusWindowProvider extends EIP1193Provider {
   };
 }
 
-interface EthereumProvider {
-  providers?: Array<PelagusWindowProvider>;
-  request?: (args: { method: string; params?: Array<unknown> }) => Promise<unknown>;
-  on?: (event: string, callback: (...args: Array<unknown>) => void) => void;
-  removeListener?: (event: string, callback: (...args: Array<unknown>) => void) => void;
-}
-
 declare global {
   interface Window {
     pelagus?: PelagusWindowProvider;
-    ethereum?: EthereumProvider;
   }
 }
 
