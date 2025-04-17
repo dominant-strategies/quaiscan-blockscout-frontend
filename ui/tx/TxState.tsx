@@ -37,13 +37,28 @@ const TxState = ({ txQuery }: Props) => {
     return txQuery.socketStatus ? <TxSocketAlert status={ txQuery.socketStatus }/> : <TxPendingAlert/>;
   }
 
-  const content = data ? (
+  const filteredItems = React.useMemo(() => {
+    if (!data?.items || !txQuery.data) {
+      return data?.items;
+    }
+
+    const isConversion = txQuery.data.tx_types?.includes('conversion');
+    const targetCurrency = isConversion ? txQuery.data.to?.currency : txQuery.data.from?.currency;
+
+    if (!targetCurrency) {
+      return data.items;
+    }
+
+    return data.items.filter(item => item.address.currency === targetCurrency);
+  }, [ data?.items, txQuery.data ]);
+
+  const content = filteredItems ? (
     <Accordion allowMultiple defaultIndex={ [] }>
       <Hide below="lg" ssr={ false }>
-        <TxStateTable data={ data.items } isLoading={ isPlaceholderData } top={ pagination.isVisible ? 80 : 0 }/>
+        <TxStateTable data={ filteredItems } isLoading={ isPlaceholderData } top={ pagination.isVisible ? 80 : 0 }/>
       </Hide>
       <Show below="lg" ssr={ false }>
-        <TxStateList data={ data.items } isLoading={ isPlaceholderData }/>
+        <TxStateList data={ filteredItems } isLoading={ isPlaceholderData }/>
       </Show>
     </Accordion>
   ) : null;
@@ -64,7 +79,7 @@ const TxState = ({ txQuery }: Props) => {
       ) }
       <DataListDisplay
         isError={ isError || txQuery.isError }
-        items={ data?.items }
+        items={ filteredItems }
         emptyText="There are no state changes for this transaction."
         content={ content }
         actionBar={ actionBar }
