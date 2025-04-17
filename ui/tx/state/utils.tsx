@@ -12,8 +12,15 @@ import { currencyUnits } from 'lib/units';
 import Tag from 'ui/shared/chakra/Tag';
 import NftEntity from 'ui/shared/entities/nft/NftEntity';
 import TokenEntity from 'ui/shared/entities/token/TokenEntity';
+import CurrencyValue from 'ui/shared/CurrencyValue';
 
 import TxStateTokenIdList from './TxStateTokenIdList';
+
+const getCurrencyFromAddress = (address: string): string => {
+  const fifthChar = address[4];
+  const hexValue = parseInt(fifthChar, 16);
+  return hexValue > 7 ? 'qi' : 'quai';
+};
 
 export function getStateElements(data: TxStateChange, isLoading?: boolean) {
   const tag = (() => {
@@ -51,8 +58,8 @@ export function getStateElements(data: TxStateChange, isLoading?: boolean) {
 
   switch (data.type) {
     case 'coin': {
-      const beforeBn = BigNumber(data.balance_before || '0').div(10 ** config.chain.currency.decimals);
-      const afterBn = BigNumber(data.balance_after || '0').div(10 ** config.chain.currency.decimals);
+      const beforeBn = BigNumber(data.balance_before || '0');
+      const afterBn = BigNumber(data.balance_after || '0');
       const differenceBn = afterBn.minus(beforeBn);
       const changeColor = beforeBn.lte(afterBn) ? 'green.500' : 'red.500';
       const changeSign = beforeBn.lte(afterBn) ? '+' : '-';
@@ -60,17 +67,34 @@ export function getStateElements(data: TxStateChange, isLoading?: boolean) {
       return {
         before: (
           <Skeleton isLoaded={ !isLoading } wordBreak="break-all" display="inline-block">
-            { beforeBn.toFormat() } { currencyUnits.ether }
+            <CurrencyValue
+              value={ data.balance_before || '0' }
+              currency={ data.address.currency }
+              decimals={ String(config.chain.currency.decimals) }
+              accuracy={ 0 }
+            />
           </Skeleton>
         ),
         after: (
           <Skeleton isLoaded={ !isLoading } wordBreak="break-all" display="inline-block">
-            { afterBn.toFormat() } { currencyUnits.ether }
+            <CurrencyValue
+              value={ data.balance_after || '0' }
+              currency={ data.address.currency }
+              decimals={ String(config.chain.currency.decimals) }
+              accuracy={ 0 }
+            />
           </Skeleton>
         ),
         change: (
           <Skeleton isLoaded={ !isLoading } display="inline-block" color={ changeColor }>
-            <span>{ changeSign }{ nbsp }{ differenceBn.abs().toFormat() }</span>
+            <span>{ changeSign }{ nbsp }</span>
+            <CurrencyValue
+              value={ differenceBn.abs().toString() }
+              currency={ data.address.currency }
+              decimals={ String(config.chain.currency.decimals) }
+              accuracy={ 0 }
+              hideCurrency
+            />
           </Skeleton>
         ),
         tag,
@@ -106,7 +130,13 @@ export function getStateElements(data: TxStateChange, isLoading?: boolean) {
 
         return (
           <Skeleton isLoaded={ !isLoading } display="inline-block" color={ changeColor }>
-            <span>{ changeSign }{ nbsp }{ differenceBn.abs().toFormat() }</span>
+            <CurrencyValue
+              value={ differenceBn.abs().toString() }
+              currency={ data.address.currency }
+              decimals={ String(config.chain.currency.decimals) }
+              accuracy={ 0 }
+              prefix={ changeSign }
+            />
           </Skeleton>
         );
       })();
