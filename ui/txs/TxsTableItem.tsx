@@ -28,7 +28,7 @@ type Props = {
 
 const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, isLoading }: Props) => {
   const dataTo = tx.to ? tx.to : tx.created_contract;
-  const currency = tx.from?.currency ? tx.from?.currency : '';
+  const currency = tx.tx_types?.includes('conversion') ? (dataTo?.currency || tx.from?.currency || '') : (tx.from?.currency || '');
   const timeAgo = useTimeAgoIncrement(tx.timestamp, enableTimeIncrement);
   const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
 

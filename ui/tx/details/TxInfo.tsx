@@ -323,7 +323,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         >
           <CurrencyValue
             value={ data.value }
-            currency={ data.from.currency ? data.from.currency : currencyUnits.ether }
+            currency={ data.tx_types?.includes('conversion') ? (data.to?.currency || data.from.currency || currencyUnits.ether) : (data.from.currency || currencyUnits.ether) }
             exchangeRate={ data.exchange_rate }
             isLoading={ isLoading }
             flexWrap="wrap"
@@ -341,7 +341,7 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           ) : (
             <CurrencyValue
               value={ fee?.toString() }
-              currency={ data.from.currency ? data.from.currency : currencyUnits.ether }
+              currency={ data.tx_types?.includes('conversion') ? (data.to?.currency || data.from.currency || currencyUnits.ether) : (data.from.currency || currencyUnits.ether) }
               exchangeRate={ data.exchange_rate }
               flexWrap="wrap"
               isLoading={ isLoading }
