@@ -55,6 +55,7 @@ import TxRevertReason from 'ui/tx/details/TxRevertReason';
 import TxAllowedPeekers from 'ui/tx/TxAllowedPeekers';
 import TxSocketAlert from 'ui/tx/TxSocketAlert';
 import TxType from 'ui/txs/TxType';
+import { TxUtxoInputs, TxUtxoOutputs } from './TxUtxoDetails';
 
 const rollupFeature = config.features.rollup;
 
@@ -432,11 +433,11 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           </DetailsInfoItem>
 
           <DetailsInfoItem title="Inputs" hint="Inputs of the UTXO transaction">
-            <RawDataSnippet data={ JSON.stringify(data.inputs, null, 2) }/>
+            <TxUtxoInputs data={ data } isLoading={ isLoading }/>
           </DetailsInfoItem>
 
           <DetailsInfoItem title="Outputs" hint="Outputs of the UTXO transaction">
-            <RawDataSnippet data={ JSON.stringify(data.outputs, null, 2) }/>
+            <TxUtxoOutputs data={ data } isLoading={ isLoading }/>
           </DetailsInfoItem>
         </>
       ) }
