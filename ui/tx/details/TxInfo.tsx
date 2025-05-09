@@ -10,8 +10,10 @@ import {
   chakra,
   useColorModeValue,
   Skeleton,
+  VStack,
 } from '@chakra-ui/react';
 import BigNumber from 'bignumber.js';
+import { formatQuai } from 'quais';
 import React from 'react';
 import { scroller, Element } from 'react-scroll';
 
@@ -22,9 +24,10 @@ import { route } from 'nextjs-routes';
 
 import config from 'configs/app';
 import { WEI, WEI_IN_GWEI } from 'lib/consts';
-import getNetworkValidatorTitle from 'lib/networks/getNetworkValidatorTitle';
+import { useDecodedMethod } from 'lib/hooks/useDecodedMethod';
 import getConfirmationDuration from 'lib/tx/getConfirmationDuration';
 import { currencyUnits } from 'lib/units';
+import { publicQuaisProvider } from 'lib/web3/client';
 import Tag from 'ui/shared/chakra/Tag';
 import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import CurrencyValue from 'ui/shared/CurrencyValue';
@@ -38,7 +41,6 @@ import BlockEntity from 'ui/shared/entities/block/BlockEntity';
 import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 import IconSvg from 'ui/shared/IconSvg';
 import LogDecodedInputData from 'ui/shared/logs/LogDecodedInputData';
-import RawDataSnippet from 'ui/shared/RawDataSnippet';
 import RawInputData from 'ui/shared/RawInputData';
 import TxStatus from 'ui/shared/statusTag/TxStatus';
 import TextSeparator from 'ui/shared/TextSeparator';
@@ -55,6 +57,7 @@ import TxRevertReason from 'ui/tx/details/TxRevertReason';
 import TxAllowedPeekers from 'ui/tx/TxAllowedPeekers';
 import TxSocketAlert from 'ui/tx/TxSocketAlert';
 import TxType from 'ui/txs/TxType';
+
 import { TxUtxoInputs, TxUtxoOutputs } from './TxUtxoDetails';
 
 const rollupFeature = config.features.rollup;
@@ -67,6 +70,21 @@ interface Props {
 
 const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
   const [ isExpanded, setIsExpanded ] = React.useState(false);
+
+  const decodedMethod = useDecodedMethod(
+    {
+      to: data?.to?.hash || null,
+      data: data?.raw_input || '0x',
+    },
+    publicQuaisProvider,
+  );
+
+  const isTokenAmount = (name: string, methodName: string) => {
+    const amountParams = [ 'amountIn', 'amountOutMin', 'amountMin', 'amountOut', 'amountInMax', 'amountOutMax', 'value', 'amount' ];
+    const tokenMethods = [ 'approve', 'transfer', 'transferFrom', 'mint', 'burn', 'swap', 'addLiquidity', 'removeLiquidity' ];
+
+    return amountParams.includes(name) || (tokenMethods.includes(methodName) && name === 'amount');
+  };
 
   const handleCutClick = React.useCallback(() => {
     setIsExpanded((flag) => !flag);
@@ -161,9 +179,9 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           errorText={ data.status === 'error' ? data.result : undefined }
           isLoading={ isLoading }
         />
-        { data.method && (
+        { (data.method || data.raw_input !== '0x') && (
           <Tag colorScheme={ data.method === 'Multicall' ? 'teal' : 'gray' } isLoading={ isLoading } isTruncated ml={ 3 }>
-            { data.method }
+            { decodedMethod?.name || data.method || data.raw_input.slice(0, 10) + '...' }
           </Tag>
         ) }
       </DetailsInfoItem>
@@ -324,7 +342,9 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         >
           <CurrencyValue
             value={ data.value }
-            currency={ data.tx_types?.includes('conversion') ? (data.to?.currency || data.from.currency || currencyUnits.ether) : (data.from.currency || currencyUnits.ether) }
+            currency={ data.tx_types?.includes('conversion') ?
+              (data.to?.currency || data.from.currency || currencyUnits.ether) :
+              (data.from.currency || currencyUnits.ether) }
             exchangeRate={ data.exchange_rate }
             isLoading={ isLoading }
             flexWrap="wrap"
@@ -342,7 +362,9 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           ) : (
             <CurrencyValue
               value={ fee?.toString() }
-              currency={ data.tx_types?.includes('conversion') ? (data.to?.currency || data.from.currency || currencyUnits.ether) : (data.from.currency || currencyUnits.ether) }
+              currency={ data.tx_types?.includes('conversion') ?
+                (data.to?.currency || data.from.currency || currencyUnits.ether) :
+                (data.from.currency || currencyUnits.ether) }
               exchangeRate={ data.exchange_rate }
               flexWrap="wrap"
               isLoading={ isLoading }
@@ -513,6 +535,46 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           >
             <RawInputData hex={ data.raw_input }/>
           </DetailsInfoItem>
+          { decodedMethod && (
+            <DetailsInfoItem
+              title="Decoded function"
+              hint="Decoded function name and parameters from the transaction input data"
+            >
+              <VStack alignItems="start" spacing={ 3 }>
+                <Text fontWeight="600">{ decodedMethod.name }</Text>
+                { decodedMethod.args && decodedMethod.args.length > 0 && (
+                  <VStack alignItems="start" spacing={ 3 }>
+                    { decodedMethod.fragment.inputs.map((input, index) => {
+                      const value = decodedMethod.args[index];
+                      const isAmount = isTokenAmount(input.name, decodedMethod.name);
+                      const isAddress = input.type === 'address';
+
+                      return (
+                        <Flex key={ index } alignItems="center" fontSize="md">
+                          <chakra.span fontWeight="500">{ input.name }</chakra.span>
+                          <chakra.span mx={ 1 }>:</chakra.span>
+                          <chakra.span color="text_secondary">{ input.type }</chakra.span>
+                          <chakra.span mx={ 1 }>=</chakra.span>
+                          { isAddress ? (
+                            <AddressEntity address={{ hash: value }} noIcon/>
+                          ) : (
+                            <>
+                              <chakra.span color="text_secondary">{ String(value) }</chakra.span>
+                              { isAmount && typeof value === 'bigint' && (
+                                <chakra.span color="text_secondary" ml={ 2 }>
+                                  ({ Number(formatQuai(value)).toFixed(5) } parsed as 18 decimals)
+                                </chakra.span>
+                              ) }
+                            </>
+                          ) }
+                        </Flex>
+                      );
+                    }) }
+                  </VStack>
+                ) }
+              </VStack>
+            </DetailsInfoItem>
+          ) }
           { data.decoded_input && (
             <DetailsInfoItem title="Decoded input data" hint="Decoded input data">
               <LogDecodedInputData data={ data.decoded_input }/>
