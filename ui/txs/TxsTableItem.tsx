@@ -5,7 +5,9 @@ import React from 'react';
 import type { Transaction } from 'types/api/transaction';
 
 import config from 'configs/app';
+import { useDecodedMethod } from 'lib/hooks/useDecodedMethod';
 import useTimeAgoIncrement from 'lib/hooks/useTimeAgoIncrement';
+import { publicQuaisProvider } from 'lib/web3/client';
 import AddressFromTo from 'ui/shared/address/AddressFromTo';
 import Tag from 'ui/shared/chakra/Tag';
 import CurrencyValue from 'ui/shared/CurrencyValue';
@@ -31,6 +33,14 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
   const currency = tx.tx_types?.includes('conversion') ? (dataTo?.currency || tx.from?.currency || '') : (tx.from?.currency || '');
   const timeAgo = useTimeAgoIncrement(tx.timestamp, enableTimeIncrement);
   const fee = tx.max_fee_per_gas && tx.gas_used ? (parseInt(tx.max_fee_per_gas)) * (parseInt(tx.gas_used)) : undefined;
+
+  const decodedMethod = useDecodedMethod(
+    {
+      to: tx.to?.hash || null,
+      data: tx.raw_input,
+    },
+    publicQuaisProvider,
+  );
 
   return (
     <Tr
@@ -73,9 +83,9 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
         </VStack>
       </Td>
       <Td whiteSpace="nowrap">
-        { tx.method && (
+        { (tx.method || tx.raw_input !== '0x') && (
           <Tag colorScheme={ tx.method === 'Multicall' ? 'teal' : 'gray' } isLoading={ isLoading } isTruncated>
-            { tx.method }
+            { decodedMethod?.name || tx.method || tx.raw_input.slice(0, 10) + '...' }
           </Tag>
         ) }
       </Td>

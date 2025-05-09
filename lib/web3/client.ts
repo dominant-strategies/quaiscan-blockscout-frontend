@@ -1,3 +1,4 @@
+import { JsonRpcProvider } from 'quais';
 import { createPublicClient, http } from 'viem';
 
 import { getFeaturePayload } from 'configs/app/features/types';
@@ -21,6 +22,16 @@ function getPublicClient() {
     });
   } catch (error) {}
 }
+
+function getPublicQuaisProvider() {
+  if (currentChain.rpcUrls.public.http.filter(Boolean).length === 0) {
+    throw new Error('No public RPC URL found');
+  }
+
+  return new JsonRpcProvider(currentChain.rpcUrls.public.http[0]);
+}
+
+export const publicQuaisProvider = getPublicQuaisProvider();
 
 export const publicClient = getPublicClient();
 

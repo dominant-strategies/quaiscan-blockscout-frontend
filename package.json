@@ -3,10 +3,7 @@
   "version": "1.0.0",
   "private": false,
   "homepage": "https://github.com/blockscout/frontend#readme",
-  "engines": {
-    "node": "20.11.0",
-    "npm": "10.2.4"
-  },
+  "engines": {},
   "scripts": {
     "dev": "patch-package && ./tools/scripts/dev.sh",
     "dev:preset": "./tools/scripts/dev.preset.sh",
@@ -61,6 +58,8 @@
     "@wagmi/core": "^2.8.2",
     "bignumber.js": "^9.1.0",
     "blo": "^1.1.1",
+    "bs58": "^6.0.0",
+    "cbor-x": "^1.6.0",
     "chakra-react-select": "^4.4.3",
     "crypto-js": "^4.2.0",
     "d3": "^7.6.1",
@@ -89,6 +88,7 @@
     "pino-http": "^8.2.1",
     "pino-pretty": "^9.1.1",
     "qrcode": "^1.5.1",
+    "quais": "^1.0.0-alpha.48",
     "react": "^18.2.0",
     "react-device-detect": "^2.2.3",
     "react-dom": "^18.2.0",
