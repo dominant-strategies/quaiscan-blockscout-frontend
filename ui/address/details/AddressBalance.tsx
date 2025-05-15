@@ -6,6 +6,7 @@ import type { Address } from 'types/api/address';
 
 import config from 'configs/app';
 import { getResourceKey } from 'lib/api/useApiQuery';
+import { useQuaiPrice } from 'lib/hooks/useQuaiPrice';
 import useSocketChannel from 'lib/socket/useSocketChannel';
 import useSocketMessage from 'lib/socket/useSocketMessage';
 import CurrencyValue from 'ui/shared/CurrencyValue';
@@ -19,6 +20,11 @@ interface Props {
 const AddressBalance = ({ data, isLoading }: Props) => {
   const [ lastBlockNumber, setLastBlockNumber ] = React.useState<number>(data.block_number_balance_updated_at || 0);
   const queryClient = useQueryClient();
+
+  // Get start of current hour in UTC
+  const now = new Date();
+  const startOfHour = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), now.getUTCHours()));
+  const quaiPrice = useQuaiPrice(data.coin_balance && data.coin_balance !== '0' ? startOfHour.toISOString() : null);
 
   const updateData = React.useCallback(
     (balance: string, exchangeRate: string, blockNumber: number) => {
@@ -82,7 +88,7 @@ const AddressBalance = ({ data, isLoading }: Props) => {
     >
       <CurrencyValue
         value={ data.coin_balance || '0' }
-        exchangeRate={ data.exchange_rate }
+        exchangeRate={ quaiPrice.data }
         decimals={ String(config.chain.currency.decimals) }
         currency={ data.currency }
         accuracyUsd={ 2 }

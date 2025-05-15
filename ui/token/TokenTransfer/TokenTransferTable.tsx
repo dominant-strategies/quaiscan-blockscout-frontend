@@ -30,7 +30,7 @@ const TokenTransferTable = ({ data, top, showSocketInfo, socketInfoAlert, socket
         <Thead top={ top }>
           <Tr>
             <Th width="280px">Txn hash</Th>
-            <Th width="200px">Method</Th>
+            <Th width="250px">Method</Th>
             <Th width={{ lg: '224px', xl: '420px' }}>From/To</Th>
             { (tokenType === 'ERC-721' || tokenType === 'ERC-1155') &&
               <Th width={ tokenType === 'ERC-1155' ? '50%' : '100%' }>Token ID</Th>

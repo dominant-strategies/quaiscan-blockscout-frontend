@@ -76,7 +76,7 @@ const CurrencyValue = ({
       </Text>
       { usdResult && (
         <Text as="span" variant="secondary" fontWeight={ 400 }>
-          (${ usdResult })
+          (~${ usdResult })
         </Text>
       ) }
     </Box>

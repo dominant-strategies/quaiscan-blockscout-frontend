@@ -28,6 +28,9 @@
     "test:jest:watch": "jest --watch",
     "favicon:generate:dev": "./tools/scripts/favicon-generator.dev.sh"
   },
+  "resolutions": {
+    "tree-sitter": "^0.22.4"
+  },
   "dependencies": {
     "@chakra-ui/react": "2.7.1",
     "@chakra-ui/theme-tools": "^2.0.18",

@@ -3,6 +3,8 @@ import React from 'react';
 
 import type { Log } from 'types/api/log';
 
+import { useContractAbis } from 'lib/hooks/useDecodedMethod';
+import { publicQuaisProvider } from 'lib/web3/client';
 import { LOG } from 'stubs/log';
 import { generateListStub } from 'stubs/utils';
 import ActionBar from 'ui/shared/ActionBar';
@@ -29,6 +31,17 @@ const TxLogs = ({ txQuery, logsFilter }: Props) => {
       placeholderData: generateListStub<'tx_logs'>(LOG, 3, { next_page_params: null }),
     },
   });
+
+  // Get unique contract addresses from logs
+  const uniqueAddresses = React.useMemo(() => {
+    if (!data?.items) {
+      return [];
+    }
+    return Array.from(new Set(data.items.map(item => item.address.hash)));
+  }, [ data?.items ]);
+
+  // Get ABIs for all unique addresses
+  const abiMap = useContractAbis(uniqueAddresses, publicQuaisProvider);
 
   if (!txQuery.isPending && !txQuery.isPlaceholderData && !txQuery.isError && !txQuery.data.status) {
     return txQuery.socketStatus ? <TxSocketAlert status={ txQuery.socketStatus }/> : <TxPendingAlert/>;
@@ -59,7 +72,15 @@ const TxLogs = ({ txQuery, logsFilter }: Props) => {
           <Pagination ml="auto" { ...pagination }/>
         </ActionBar>
       ) }
-      { items.map((item, index) => <LogItem key={ index } { ...item } type="transaction" isLoading={ isPlaceholderData }/>) }
+      { items.map((item, index) => (
+        <LogItem
+          key={ index }
+          { ...item }
+          type="transaction"
+          isLoading={ isPlaceholderData }
+          abi={ abiMap.get(item.address.hash) || undefined }
+        />
+      )) }
     </Box>
   );
 };

@@ -62,7 +62,7 @@ module.exports = {
     '@typescript-eslint/consistent-type-imports': [ 'error' ],
     '@typescript-eslint/indent': [ 'error', 2 ],
     '@typescript-eslint/member-delimiter-style': [ 'error' ],
-    '@typescript-eslint/naming-convention': [ 'error',
+    '@typescript-eslint/naming-convention': [ 'warn',
       {
         selector: 'default',
         format: [ 'camelCase' ],
@@ -123,7 +123,9 @@ module.exports = {
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-useless-constructor': [ 'error' ],
     '@typescript-eslint/type-annotation-spacing': 'error',
-    '@typescript-eslint/no-explicit-any': [ 'error', { ignoreRestArgs: true } ],
+    '@typescript-eslint/no-explicit-any': 'off',
+    'no-console': [ 'error', { allow: [ 'error', 'warn' ] } ],
+    'no-irregular-whitespace': 'off',
 
     // disabled in favor of @typescript-eslint
     'brace-style': 'off',
@@ -154,7 +156,6 @@ module.exports = {
       allowBlockStart: true,
     } ],
     'max-len': [ 'error', 160, 4 ],
-    'no-console': 'error',
     'no-empty': [ 'error', { allowEmptyCatch: true } ],
     'no-implicit-coercion': [ 'error', {
       number: true,

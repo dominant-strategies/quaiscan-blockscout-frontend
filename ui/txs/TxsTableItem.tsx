@@ -37,9 +37,12 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
   const decodedMethod = useDecodedMethod(
     {
       to: tx.to?.hash || null,
-      data: tx.raw_input,
+      data: tx.method || tx.raw_input || '0x',
     },
     publicQuaisProvider,
+    {
+      enabled: !tx.etx_type,
+    },
   );
 
   return (
@@ -83,9 +86,9 @@ const TxsTableItem = ({ tx, showBlockInfo, currentAddress, enableTimeIncrement, 
         </VStack>
       </Td>
       <Td whiteSpace="nowrap">
-        { (tx.method || tx.raw_input !== '0x') && (
+        { (tx.method || decodedMethod.data?.name) && (
           <Tag colorScheme={ tx.method === 'Multicall' ? 'teal' : 'gray' } isLoading={ isLoading } isTruncated>
-            { decodedMethod?.name || tx.method || tx.raw_input.slice(0, 10) + '...' }
+            { decodedMethod.data?.name || tx.method || tx.raw_input.slice(0, 10) + '...' }
           </Tag>
         ) }
       </Td>

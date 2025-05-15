@@ -1,7 +1,9 @@
 import { useRouter } from 'next/router';
 import React from 'react';
 
+import { useContractAbis } from 'lib/hooks/useDecodedMethod';
 import getQueryParamString from 'lib/router/getQueryParamString';
+import { publicQuaisProvider } from 'lib/web3/client';
 import { LOG } from 'stubs/log';
 import { generateListStub } from 'stubs/utils';
 import ActionBar from 'ui/shared/ActionBar';
@@ -30,6 +32,17 @@ const AddressLogs = ({ scrollRef }: {scrollRef?: React.RefObject<HTMLDivElement>
     },
   });
 
+  // Get unique contract addresses from logs
+  const uniqueAddresses = React.useMemo(() => {
+    if (!data?.items) {
+      return [];
+    }
+    return Array.from(new Set(data.items.map(item => item.address.hash)));
+  }, [ data?.items ]);
+
+  // Get ABIs for all unique addresses
+  const abiMap = useContractAbis(uniqueAddresses, publicQuaisProvider);
+
   const actionBar = (
     <ActionBar mt={ -6 } showShadow justifyContent={{ base: 'space-between', lg: 'end' }}>
       <AddressCsvExportLink
@@ -41,7 +54,15 @@ const AddressLogs = ({ scrollRef }: {scrollRef?: React.RefObject<HTMLDivElement>
     </ActionBar>
   );
 
-  const content = data?.items ? data.items.map((item, index) => <LogItem key={ index } { ...item } type="address" isLoading={ isPlaceholderData }/>) : null;
+  const content = data?.items ? data.items.map((item, index) => (
+    <LogItem
+      key={ index }
+      { ...item }
+      type="address"
+      isLoading={ isPlaceholderData }
+      abi={ abiMap.get(item.address.hash) || undefined }
+    />
+  )) : null;
 
   return (
     <DataListDisplay

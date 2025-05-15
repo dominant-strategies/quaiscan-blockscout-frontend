@@ -12,6 +12,7 @@ import config from 'configs/app';
 import useApiQuery, { getResourceKey } from 'lib/api/useApiQuery';
 import { useAppContext } from 'lib/contexts/app';
 import useContractTabs from 'lib/hooks/useContractTabs';
+import { useGraphQLTransactions } from 'lib/hooks/useGraphQLTransactions';
 import useIsMobile from 'lib/hooks/useIsMobile';
 import * as metadata from 'lib/metadata';
 import getQueryParamString from 'lib/router/getQueryParamString';
@@ -137,6 +138,39 @@ const TokenPageContent = () => {
     },
   });
 
+  // Get transaction hashes from the transfers
+  const txHashes = React.useMemo(() => {
+    if (!transfersQuery.data?.items) {
+      return [];
+    }
+    return transfersQuery.data.items.map(item => item.tx_hash);
+  }, [ transfersQuery.data?.items ]);
+
+  // Fetch transaction data using GraphQL
+  const txDataQuery = useGraphQLTransactions(txHashes);
+
+  // Enrich the transfers data with transaction data
+  const enrichedTransfersQuery = React.useMemo(() => {
+    if (!transfersQuery.data?.items || !txDataQuery.data) {
+      return transfersQuery;
+    }
+
+    const enrichedItems = transfersQuery.data.items.map(item => ({
+      ...item,
+      tx_to: {
+        hash: txDataQuery.data[item.tx_hash] || item.to.hash,
+      },
+    }));
+
+    return {
+      ...transfersQuery,
+      data: {
+        ...transfersQuery.data,
+        items: enrichedItems,
+      },
+    };
+  }, [ transfersQuery, txDataQuery.data ]);
+
   const inventoryQuery = useQueryWithPages({
     resourceName: 'token_inventory',
     pathParams: { hash: hashString },
@@ -179,7 +213,7 @@ const TokenPageContent = () => {
       title: 'Inventory',
       component: <TokenInventory inventoryQuery={ inventoryQuery } tokenQuery={ tokenQuery } ownerFilter={ ownerFilter }/>,
     } : undefined,
-    { id: 'token_transfers', title: 'Token transfers', component: <TokenTransfer transfersQuery={ transfersQuery } token={ tokenQuery.data }/> },
+    { id: 'token_transfers', title: 'Token transfers', component: <TokenTransfer transfersQuery={ enrichedTransfersQuery } token={ tokenQuery.data }/> },
     { id: 'holders', title: 'Holders', component: <TokenHolders token={ tokenQuery.data } holdersQuery={ holdersQuery }/> },
     contractQuery.data?.is_contract ? {
       id: 'contract',
