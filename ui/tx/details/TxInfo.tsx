@@ -25,6 +25,8 @@ import { route } from 'nextjs-routes';
 import config from 'configs/app';
 import { WEI, WEI_IN_GWEI } from 'lib/consts';
 import { useDecodedMethod } from 'lib/hooks/useDecodedMethod';
+import { useQuaiPrice } from 'lib/hooks/useQuaiPrice';
+import { useTxErrorTrace } from 'lib/hooks/useTxTrace';
 import getConfirmationDuration from 'lib/tx/getConfirmationDuration';
 import { currencyUnits } from 'lib/units';
 import { publicQuaisProvider } from 'lib/web3/client';
@@ -33,7 +35,6 @@ import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import CurrencyValue from 'ui/shared/CurrencyValue';
 import DetailsInfoItem from 'ui/shared/DetailsInfoItem';
 import DetailsInfoItemDivider from 'ui/shared/DetailsInfoItemDivider';
-import DetailsSponsoredItem from 'ui/shared/DetailsSponsoredItem';
 import DetailsTimestamp from 'ui/shared/DetailsTimestamp';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import BatchEntityL2 from 'ui/shared/entities/block/BatchEntityL2';
@@ -77,8 +78,12 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
       data: data?.raw_input || '0x',
     },
     publicQuaisProvider,
+    {
+      enabled: !data?.etx_type,
+    },
   );
 
+  const errorTrace = useTxErrorTrace(data?.status === 'error' ? data?.hash : undefined);
   const isTokenAmount = (name: string, methodName: string) => {
     const amountParams = [ 'amountIn', 'amountOutMin', 'amountMin', 'amountOut', 'amountInMax', 'amountOutMax', 'value', 'amount' ];
     const tokenMethods = [ 'approve', 'transfer', 'transferFrom', 'mint', 'burn', 'swap', 'addLiquidity', 'removeLiquidity' ];
@@ -94,6 +99,8 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
     });
   }, []);
   const executionSuccessIconColor = useColorModeValue('blackAlpha.800', 'whiteAlpha.800');
+
+  const quaiPrice = useQuaiPrice(data?.timestamp);
 
   if (!data) {
     return null;
@@ -181,10 +188,19 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         />
         { (data.method || data.raw_input !== '0x') && (
           <Tag colorScheme={ data.method === 'Multicall' ? 'teal' : 'gray' } isLoading={ isLoading } isTruncated ml={ 3 }>
-            { decodedMethod?.name || data.method || data.raw_input.slice(0, 10) + '...' }
+            { decodedMethod.data?.name || data.method || data.raw_input.slice(0, 10) + '...' }
           </Tag>
         ) }
       </DetailsInfoItem>
+      { data.status === 'error' && errorTrace && errorTrace.data && (
+        <DetailsInfoItem
+          title="Error trace"
+          hint="Detailed error information from transaction execution"
+          isLoading={ isLoading }
+        >
+          <Text color="error">{ errorTrace.data }</Text>
+        </DetailsInfoItem>
+      ) }
       { rollupFeature.isEnabled &&
         rollupFeature.type === 'optimistic' &&
         data.op_withdrawals &&
@@ -259,7 +275,6 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
         </DetailsInfoItem>
       ) }
       { data.allowed_peekers && data.allowed_peekers.length > 0 && <TxAllowedPeekers items={ data.allowed_peekers }/> }
-      <DetailsSponsoredItem isLoading={ isLoading }/>
 
       { data.from && toAddress && <DetailsInfoItemDivider/> }
 
@@ -345,7 +360,8 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
             currency={ data.tx_types?.includes('conversion') ?
               (data.to?.currency || data.from.currency || currencyUnits.ether) :
               (data.from.currency || currencyUnits.ether) }
-            exchangeRate={ data.exchange_rate }
+            exchangeRate={ data?.value && data?.value !== '0' ? quaiPrice.data : null }
+            accuracyUsd={ 3 }
             isLoading={ isLoading }
             flexWrap="wrap"
           />
@@ -365,7 +381,8 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
               currency={ data.tx_types?.includes('conversion') ?
                 (data.to?.currency || data.from.currency || currencyUnits.ether) :
                 (data.from.currency || currencyUnits.ether) }
-              exchangeRate={ data.exchange_rate }
+              exchangeRate={ quaiPrice.data }
+              accuracyUsd={ 3 }
               flexWrap="wrap"
               isLoading={ isLoading }
             />
@@ -535,34 +552,33 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           >
             <RawInputData hex={ data.raw_input }/>
           </DetailsInfoItem>
-          { decodedMethod && (
+          { decodedMethod.data && (
             <DetailsInfoItem
               title="Decoded function"
               hint="Decoded function name and parameters from the transaction input data"
             >
               <VStack alignItems="start" spacing={ 3 }>
-                <Text fontWeight="600">{ decodedMethod.name }</Text>
-                { decodedMethod.args && decodedMethod.args.length > 0 && (
+                <Text fontWeight="600">{ decodedMethod.data.name }</Text>
+                { decodedMethod.data.params && decodedMethod.data.params.length > 0 && (
                   <VStack alignItems="start" spacing={ 3 }>
-                    { decodedMethod.fragment.inputs.map((input, index) => {
-                      const value = decodedMethod.args[index];
-                      const isAmount = isTokenAmount(input.name, decodedMethod.name);
-                      const isAddress = input.type === 'address';
+                    { decodedMethod.data.params.map((param, index) => {
+                      const isAmount = isTokenAmount(param.name, decodedMethod.data?.name || '');
+                      const isAddress = param.type === 'address';
 
                       return (
                         <Flex key={ index } alignItems="center" fontSize="md">
-                          <chakra.span fontWeight="500">{ input.name }</chakra.span>
+                          <chakra.span fontWeight="500">{ param.name }</chakra.span>
                           <chakra.span mx={ 1 }>:</chakra.span>
-                          <chakra.span color="text_secondary">{ input.type }</chakra.span>
+                          <chakra.span color="text_secondary">{ param.type }</chakra.span>
                           <chakra.span mx={ 1 }>=</chakra.span>
                           { isAddress ? (
-                            <AddressEntity address={{ hash: value }} noIcon/>
+                            <AddressEntity address={{ hash: param.value as string }} noIcon/>
                           ) : (
                             <>
-                              <chakra.span color="text_secondary">{ String(value) }</chakra.span>
-                              { isAmount && typeof value === 'bigint' && (
+                              <chakra.span color="text_secondary">{ String(param.value) }</chakra.span>
+                              { isAmount && typeof param.value === 'bigint' && (
                                 <chakra.span color="text_secondary" ml={ 2 }>
-                                  ({ Number(formatQuai(value)).toFixed(5) } parsed as 18 decimals)
+                                  ({ Number(formatQuai(param.value)).toFixed(5) } parsed as 18 decimals)
                                 </chakra.span>
                               ) }
                             </>

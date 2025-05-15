@@ -1,4 +1,5 @@
-import { Flex, Grid, Skeleton, useColorModeValue } from '@chakra-ui/react';
+import { Flex, Grid, Skeleton, useColorModeValue, Text } from '@chakra-ui/react';
+import { formatQuai } from 'quais';
 import React from 'react';
 
 import type { DecodedInput } from 'types/api/decodedInput';
@@ -45,6 +46,22 @@ const Row = ({ name, type, indexed, value, isLoading }: ArrayElement<DecodedInpu
         <Flex alignItems="flex-start" justifyContent="space-between" whiteSpace="normal" wordBreak="break-all">
           <TruncatedValue value={ text } isLoading={ isLoading }/>
           <CopyToClipboard text={ text } isLoading={ isLoading }/>
+        </Flex>
+      );
+    }
+
+    // Special formatting for amount/value fields
+    const amountFields = [ 'amount', 'eth', 'value' ];
+    if (type === 'uint256' && amountFields.includes(name) && typeof value === 'string') {
+      return (
+        <Flex direction="column" alignItems="flex-start" justifyContent="space-between" whiteSpace="normal" wordBreak="break-all">
+          <Flex alignItems="center">
+            <TruncatedValue value={ value } isLoading={ isLoading }/>
+            <CopyToClipboard text={ value } isLoading={ isLoading }/>
+          </Flex>
+          <Text color="text_secondary" fontSize="sm" mt={ 1 }>
+            ({ Number(formatQuai(value)).toFixed(5) } parsed as 18 decimals)
+          </Text>
         </Flex>
       );
     }
@@ -99,7 +116,6 @@ const LogDecodedInputDataTable = ({ data, isLoading }: Props) => {
       { hasIndexed && <HeaderItem isLoading={ isLoading }>Inde<wbr/>xed?</HeaderItem> }
       <HeaderItem isLoading={ isLoading }>Data</HeaderItem>
       { data.map((item) => {
-
         return <Row key={ item.name } { ...item } isLoading={ isLoading }/>;
       }) }
     </Grid>

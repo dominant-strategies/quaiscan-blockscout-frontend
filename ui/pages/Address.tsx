@@ -174,7 +174,7 @@ const AddressPageContent = () => {
       isLoading={ isLoading }
       tagsBefore={ [
         // Quick Fix to not exhibit the "EOA" tag for token contracts
-        !addressQuery.data?.token ? { label: 'eoa', display_name: 'EOA' } : undefined,
+        !addressQuery.data?.token && !addressQuery.data?.is_contract && !addressQuery.data?.has_logs ? { label: 'eoa', display_name: 'EOA' } : undefined,
         config.features.validators.isEnabled && addressQuery.data?.has_validated_blocks ?
           { label: 'validator', display_name: 'Validator' } :
           undefined,
@@ -272,7 +272,7 @@ const AddressPageContent = () => {
       <Flex>
         <Box flex={ 1 }>
           <PageTitle
-            title={ `${ addressQuery.data?.is_contract ? 'Contract' : 'Address' } details` }
+            title={ `${ addressQuery.data?.is_contract || addressQuery.data?.has_logs ? 'Contract' : 'Address' } details` }
             backLink={ backLink }
             contentAfter={ tags }
             secondRow={ titleSecondRow }

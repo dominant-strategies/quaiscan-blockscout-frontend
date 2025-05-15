@@ -1,6 +1,8 @@
 import { Grid, GridItem, Tooltip, Button, useColorModeValue, Alert, Link, Skeleton } from '@chakra-ui/react';
+import { Interface } from 'quais';
 import React from 'react';
 
+import type { DecodedInput, DecodedInputParams } from 'types/api/decodedInput';
 import type { Log } from 'types/api/log';
 
 import { route } from 'nextjs-routes';
@@ -15,6 +17,7 @@ import LogTopic from 'ui/shared/logs/LogTopic';
 type Props = Log & {
   type: 'address' | 'transaction';
   isLoading?: boolean;
+  abi?: Array<any>;
 };
 
 const RowHeader = ({ children, isLoading }: { children: React.ReactNode; isLoading?: boolean }) => (
@@ -23,12 +26,44 @@ const RowHeader = ({ children, isLoading }: { children: React.ReactNode; isLoadi
   </GridItem>
 );
 
-const LogItem = ({ address, index, topics, data, decoded, type, tx_hash: txHash, isLoading }: Props) => {
-
+const LogItem = ({ address, index, topics, data, decoded, type, tx_hash: txHash, isLoading, abi }: Props) => {
   const borderColor = useColorModeValue('blackAlpha.200', 'whiteAlpha.200');
   const dataBgColor = useColorModeValue('blackAlpha.50', 'whiteAlpha.50');
 
   const hasTxInfo = type === 'address' && txHash;
+
+  // Try to decode the log data using the provided ABI
+  const decodedLogData = React.useMemo<DecodedInput | null>(() => {
+    if (!abi || !topics[0]) {
+      return null;
+    }
+
+    try {
+      const iface = Interface.from(abi);
+      const parsedLog = iface.parseLog({
+        topics: topics.filter(Boolean) as Array<string>,
+        data,
+      });
+
+      if (!parsedLog) {
+        return null;
+      }
+
+      return {
+        method_id: topics[0],
+        method_call: parsedLog.name,
+        parameters: parsedLog.args.map((value, i): DecodedInputParams => ({
+          name: parsedLog.fragment.inputs[i]?.name || `arg${ i }`,
+          type: parsedLog.fragment.inputs[i]?.type || 'unknown',
+          value: value.toString(),
+          indexed: parsedLog.fragment.inputs[i]?.indexed || false,
+        })),
+      };
+    } catch (error) {
+      console.error('Failed to decode log data:', error);
+      return null;
+    }
+  }, [ abi, data, topics ]);
 
   return (
     <Grid
@@ -80,11 +115,11 @@ const LogItem = ({ address, index, topics, data, decoded, type, tx_hash: txHash,
           </Tooltip>
         </Skeleton>
       </GridItem>
-      { decoded && (
+      { (decoded || decodedLogData) && (
         <>
-          <RowHeader isLoading={ isLoading }>Decode input data</RowHeader>
+          <RowHeader isLoading={ isLoading }>Decoded log data</RowHeader>
           <GridItem>
-            <LogDecodedInputData data={ decoded } isLoading={ isLoading }/>
+            <LogDecodedInputData data={ decoded || decodedLogData! } isLoading={ isLoading }/>
           </GridItem>
         </>
       ) }

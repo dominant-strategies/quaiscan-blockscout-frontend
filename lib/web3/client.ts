@@ -31,7 +31,15 @@ function getPublicQuaisProvider() {
   return new JsonRpcProvider(currentChain.rpcUrls.public.http[0]);
 }
 
+function getPublicDebugQuaisProvider() {
+  if (currentChain.rpcUrls.debug.http.filter(Boolean).length === 0) {
+    throw new Error('No public RPC URL found');
+  }
+  return new JsonRpcProvider(currentChain.rpcUrls.debug.http[0]);
+}
+
 export const publicQuaisProvider = getPublicQuaisProvider();
+export const publicDebugQuaisProvider = getPublicDebugQuaisProvider();
 
 export const publicClient = getPublicClient();
 
