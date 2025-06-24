@@ -57,7 +57,7 @@ import TxDetailsWithdrawalStatus from 'ui/tx/details/TxDetailsWithdrawalStatus';
 import TxRevertReason from 'ui/tx/details/TxRevertReason';
 import TxAllowedPeekers from 'ui/tx/TxAllowedPeekers';
 import TxSocketAlert from 'ui/tx/TxSocketAlert';
-import TxType from 'ui/txs/TxType';
+import TxType, { isConversionRevert } from 'ui/txs/TxType';
 
 import { TxUtxoInputs, TxUtxoOutputs } from './TxUtxoDetails';
 
@@ -177,10 +177,10 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
       </DetailsInfoItem>
       <DetailsInfoItem
         title={ rollupFeature.isEnabled && rollupFeature.type === 'zkEvm' ? 'L2 status and method' : 'Status and method' }
-        hint="Current transaction state: Success, Failed (Error), or Pending (In Process)"
+        hint={ `${ isConversionRevert(data) ? 'Conversion revert means the slippage set was too low. The funds were returned to the sender.' : 'Current transaction state: Success, Failed (Error), or Pending (In Process). ' }` }
         isLoading={ isLoading }
       >
-        <TxType types={ data.tx_types } isLoading={ isLoading }/> &nbsp;
+        <TxType tx={ data } isLoading={ isLoading }/> &nbsp;
         <TxStatus
           status={ data.is_etx ? data.result : data.status }
           errorText={ data.status === 'error' ? data.result : undefined }

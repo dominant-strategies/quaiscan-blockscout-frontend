@@ -38,7 +38,7 @@ const LatestTxsItem = ({ tx, isLoading }: Props) => {
     >
       <Flex justifyContent="space-between">
         <HStack flexWrap="wrap">
-          <TxType types={ tx.tx_types } isLoading={ isLoading }/>
+          <TxType tx={ tx } isLoading={ isLoading }/>
           <TxStatus
             status={ tx.status }
             errorText={ tx.status === 'error' ? tx.result : undefined }
