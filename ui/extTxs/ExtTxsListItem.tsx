@@ -37,7 +37,7 @@ const ExtTxsListItem = ({ tx, isLoading, showBlockInfo, currentAddress, enableTi
     <ListItemMobile display="block" width="100%" isAnimated key={ tx.hash }>
       <Flex justifyContent="space-between" mt={ 4 }>
         <HStack flexWrap="wrap">
-          <TxType types={ tx.tx_types } isLoading={ isLoading }/>
+          <TxType tx={ tx } isLoading={ isLoading }/>
           <TxStatus status={ tx.status } errorText={ tx.status === 'error' ? tx.result : undefined } isLoading={ isLoading }/>
         </HStack>
         <TxAdditionalInfo tx={ tx } isMobile isLoading={ isLoading }/>

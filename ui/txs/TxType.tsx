@@ -1,11 +1,12 @@
+import { isQiAddress, isQuaiAddress } from 'quais';
 import React from 'react';
 
-import type { TransactionType } from 'types/api/transaction';
+import type { ExternalTransaction, Transaction, TransactionType } from 'types/api/transaction';
 
 import Tag from 'ui/shared/chakra/Tag';
 
 export interface Props {
-  types: Array<TransactionType>;
+  tx: Transaction | ExternalTransaction;
   isLoading?: boolean;
 }
 
@@ -24,9 +25,15 @@ const TYPES_ORDER: Array<TransactionType> = [
   'coin_transfer',
 ];
 
-const TxType = ({ types, isLoading }: Props) => {
+export const isConversionRevert = (tx: Transaction | ExternalTransaction) => {
+  const types = tx.tx_types;
   const typeToShow = types.sort((t1, t2) => TYPES_ORDER.indexOf(t1) - TYPES_ORDER.indexOf(t2))[0];
+  return tx.to?.hash && tx.from?.hash && isQiAddress(tx.to?.hash) && isQuaiAddress(tx.from?.hash) && (typeToShow === null || typeToShow === undefined);
+};
 
+const TxType = ({ tx, isLoading }: Props) => {
+  const types = tx.tx_types;
+  const typeToShow = types.sort((t1, t2) => TYPES_ORDER.indexOf(t1) - TYPES_ORDER.indexOf(t2))[0];
   let label;
   let colorScheme;
 
@@ -82,6 +89,11 @@ const TxType = ({ types, isLoading }: Props) => {
     default:
       label = 'Transaction';
       colorScheme = 'purple';
+  }
+
+  if (isConversionRevert(tx)) {
+    label = 'Conversion revert';
+    colorScheme = 'red';
   }
 
   return (
