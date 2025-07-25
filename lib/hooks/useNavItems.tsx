@@ -203,9 +203,9 @@ export default function useNavItems(): ReturnType {
       } : null,
       config.features.stats.isEnabled ? {
         text: 'Charts & stats',
-        nextRoute: { pathname: '/stats' as const, query: { shard: shardId } },
+        url: 'https://stats.quai.network',
         icon: 'stats',
-        isActive: pathname === '/stats',
+        isActive: false,
       } : null,
       apiNavItems.length > 0 && {
         text: 'API',

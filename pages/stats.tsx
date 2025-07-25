@@ -1,18 +1,16 @@
-import type { NextPage } from 'next';
-import React from 'react';
-
-import PageNextJs from 'nextjs/PageNextJs';
-
-import Stats from 'ui/pages/Stats';
+import type { GetServerSideProps, NextPage } from 'next';
 
 const Page: NextPage = () => {
-  return (
-    <PageNextJs pathname="/stats">
-      <Stats/>
-    </PageNextJs>
-  );
+  return null;
 };
 
 export default Page;
 
-export { stats as getServerSideProps } from 'nextjs/getServerSideProps';
+export const getServerSideProps: GetServerSideProps = async() => {
+  return {
+    redirect: {
+      destination: 'https://stats.quai.network',
+      permanent: false,
+    },
+  };
+};
