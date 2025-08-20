@@ -3,6 +3,7 @@ import React from 'react';
 
 import type { ExternalTransaction, Transaction, TransactionType } from 'types/api/transaction';
 
+import currentChain from 'lib/web3/currentChain';
 import Tag from 'ui/shared/chakra/Tag';
 
 export interface Props {
@@ -28,7 +29,10 @@ const TYPES_ORDER: Array<TransactionType> = [
 export const isConversionRevert = (tx: Transaction | ExternalTransaction) => {
   const types = tx.tx_types;
   const typeToShow = types.sort((t1, t2) => TYPES_ORDER.indexOf(t1) - TYPES_ORDER.indexOf(t2))[0];
-  return tx.to?.hash && tx.from?.hash && isQiAddress(tx.to?.hash) && isQuaiAddress(tx.from?.hash) && (typeToShow === null || typeToShow === undefined);
+  const isQiToQuai = tx.to?.hash && tx.from?.hash && isQiAddress(tx.to?.hash) && isQuaiAddress(tx.from?.hash);
+  const isQuaiToQi = tx.to?.hash && tx.from?.hash && isQuaiAddress(tx.to?.hash) && isQiAddress(tx.from?.hash);
+  const isWrappedQi = tx.to?.hash && tx.from?.hash && (tx.to.hash === currentChain.wrapped_Qi || tx.from.hash === currentChain.wrapped_Qi);
+  return !isWrappedQi && (isQiToQuai || isQuaiToQi) && (typeToShow === null || typeToShow === undefined);
 };
 
 const TxType = ({ tx, isLoading }: Props) => {
