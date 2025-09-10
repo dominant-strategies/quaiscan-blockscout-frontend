@@ -25,7 +25,7 @@ const currentChain: ChainConfig = {
       http: [ config.chain.rpcUrl ?? '' ],
     },
     debug: {
-      http: [ 'https://debug.rpc.quai.network' ],
+      http: [ config.chain.rpcUrl ?? '' ],
     },
   },
   blockExplorers: {

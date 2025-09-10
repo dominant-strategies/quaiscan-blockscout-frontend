@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
+import currentChain from 'lib/web3/currentChain';
+
 interface TraceCall {
   type: string;
   from: string;
@@ -45,7 +47,7 @@ function useTxTrace(hash: string | null | undefined) {
       }
 
       try {
-        const response = await fetch('https://debug.rpc.quai.network/cyprus1', {
+        const response = await fetch(currentChain.rpcUrls.debug.http[0], {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

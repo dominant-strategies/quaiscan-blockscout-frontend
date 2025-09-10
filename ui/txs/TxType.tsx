@@ -31,8 +31,9 @@ export const isConversionRevert = (tx: Transaction | ExternalTransaction) => {
   const typeToShow = types.sort((t1, t2) => TYPES_ORDER.indexOf(t1) - TYPES_ORDER.indexOf(t2))[0];
   const isQiToQuai = tx.to?.hash && tx.from?.hash && isQiAddress(tx.to?.hash) && isQuaiAddress(tx.from?.hash);
   const isQuaiToQi = tx.to?.hash && tx.from?.hash && isQuaiAddress(tx.to?.hash) && isQiAddress(tx.from?.hash);
+  const isFromZeroAddress = tx.from?.hash === '0x0000000000000000000000000000000000000000';
   const isWrappedQi = tx.to?.hash && tx.from?.hash && (tx.to.hash === currentChain.wrapped_Qi || tx.from.hash === currentChain.wrapped_Qi);
-  return !isWrappedQi && (isQiToQuai || isQuaiToQi) && (typeToShow === null || typeToShow === undefined);
+  return !isWrappedQi && (isQiToQuai || isQuaiToQi || isFromZeroAddress) && (typeToShow === null || typeToShow === undefined);
 };
 
 const TxType = ({ tx, isLoading }: Props) => {
