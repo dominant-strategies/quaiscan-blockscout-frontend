@@ -47,7 +47,7 @@ function useTxTrace(hash: string | null | undefined) {
       }
 
       try {
-        const response = await fetch(currentChain.rpcUrls.debug.http[0], {
+        const response = await fetch(currentChain.rpcUrls.debug.http[0] + '/cyprus1', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
