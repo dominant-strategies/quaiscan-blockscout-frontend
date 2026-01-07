@@ -20,7 +20,7 @@ type Props = {
 const AddressesTableItem = ({ item, index, totalSupply, hasPercentage, isLoading }: Props) => {
   const addressBalance = BigNumber(item.coin_balance).div(BigNumber(10 ** config.chain.currency.decimals));
   const addressBalanceChunks = addressBalance.dp(8).toFormat().split('.');
-  const currency = getCurrencyFromAddress(item);
+  const currency = item ? getCurrencyFromAddress(item) : '';
 
   return (
     <Tr>
