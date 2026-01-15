@@ -448,38 +448,6 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
           { renderTxFeeContent() }
         </DetailsInfoItem>
       ) }
-      { isCoinbaseTx && donorChainInfo.data?.meetsBlockDifficulty && (
-        <DetailsInfoItem
-          title="Parent chain block reward"
-          hint="This coinbase transaction meets the parent chain block difficulty, earning additional block rewards"
-          isLoading={ isLoading || donorChainInfo.isLoading }
-        >
-          <Flex flexWrap="wrap" alignItems="center" gap={ 2 }>
-            { donorChainRewards.map((reward, index) => {
-              const price = donorChainPrices.data?.[reward.symbol];
-              const usdValue = price ? (reward.amountNum * price).toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-                maximumFractionDigits: 2,
-              }) : null;
-
-              return (
-                <Tag key={ index } colorScheme="green">
-                  { reward.amount } { reward.symbol }
-                  { usdValue && (
-                    <Text as="span" ml={ 1 } fontWeight="normal">
-                      ({ usdValue })
-                    </Text>
-                  ) }
-                </Tag>
-              );
-            }) }
-            <Text color="text_secondary" fontSize="sm">
-              ({ donorChainInfo.data.powIdName })
-            </Text>
-          </Flex>
-        </DetailsInfoItem>
-      ) }
 
       { data.type !== 2 && (
         <>
