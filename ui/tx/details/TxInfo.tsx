@@ -25,6 +25,7 @@ import { route } from 'nextjs-routes';
 import config from 'configs/app';
 import { WEI, WEI_IN_GWEI } from 'lib/consts';
 import { useDecodedMethod } from 'lib/hooks/useDecodedMethod';
+import { useDonorChainInfo, useDonorChainPrices, extractWorkshareHash, getDonorChainReward } from 'lib/hooks/useDonorChainInfo';
 import { useQuaiPrice } from 'lib/hooks/useQuaiPrice';
 import { useTxErrorTrace } from 'lib/hooks/useTxTrace';
 import getConfirmationDuration from 'lib/tx/getConfirmationDuration';
@@ -84,6 +85,18 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
   );
 
   const errorTrace = useTxErrorTrace(data?.status === 'error' ? data?.hash : undefined);
+
+  // For coinbase transactions, fetch donor chain info to display block reward
+  const isCoinbaseTx = data?.tx_types?.includes('coinbase') || data?.etx_type === 'coinbase';
+  const workshareHash = isCoinbaseTx ? extractWorkshareHash(data?.raw_input || '') : null;
+  const donorChainInfo = useDonorChainInfo(workshareHash);
+
+  // Get donor chain rewards and fetch USD prices only for the relevant chain
+  const donorChainRewards = donorChainInfo.data?.meetsBlockDifficulty ?
+    getDonorChainReward(donorChainInfo.data.powIdName) :
+    [];
+  const donorChainPrices = useDonorChainPrices(donorChainRewards.map((r) => r.symbol));
+
   const isTokenAmount = (name: string, methodName: string) => {
     const amountParams = [ 'amountIn', 'amountOutMin', 'amountMin', 'amountOut', 'amountInMax', 'amountOutMax', 'value', 'amount' ];
     const tokenMethods = [ 'approve', 'transfer', 'transferFrom', 'mint', 'burn', 'swap', 'addLiquidity', 'removeLiquidity' ];
@@ -136,6 +149,65 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
       </Tooltip>
     ) : null;
   const fee = data.max_fee_per_gas && data.gas_used ? (parseInt(data.max_fee_per_gas)) * (parseInt(data.gas_used)) : undefined;
+
+  // Determine transaction fee hint based on transaction type
+  const showDonorChainReward = isCoinbaseTx && donorChainInfo.data?.meetsBlockDifficulty;
+  const getTxFeeHint = () => {
+    if (showDonorChainReward) {
+      return 'This coinbase transaction meets the parent chain block difficulty and pays the subsidy to the Quai chain';
+    }
+    if (data.blob_gas_used) {
+      return 'Transaction fee without blob fee';
+    }
+    return 'Total transaction fee';
+  };
+
+  // Render transaction fee content based on transaction type
+  const renderTxFeeContent = () => {
+    if (showDonorChainReward) {
+      return (
+        <Flex flexWrap="wrap" alignItems="center" gap={ 2 }>
+          { donorChainRewards.map((reward, index) => {
+            const price = donorChainPrices.data?.[reward.symbol];
+            const usdValue = price ? (reward.amountNum * price).toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+              maximumFractionDigits: 2,
+            }) : null;
+
+            return (
+              <Tag key={ index } colorScheme="green">
+                { reward.amount } { reward.symbol }
+                { usdValue && (
+                  <Text as="span" ml={ 1 } fontWeight="normal">
+                    ({ usdValue })
+                  </Text>
+                ) }
+              </Tag>
+            );
+          }) }
+          <Text color="text_secondary" fontSize="sm">
+            ({ donorChainInfo.data?.powIdName })
+          </Text>
+        </Flex>
+      );
+    }
+    if (data.stability_fee) {
+      return <TxFeeStability data={ data.stability_fee } isLoading={ isLoading }/>;
+    }
+    return (
+      <CurrencyValue
+        value={ fee?.toString() }
+        currency={ data.tx_types?.includes('conversion') ?
+          (data.to?.currency || data.from.currency || currencyUnits.ether) :
+          (data.from.currency || currencyUnits.ether) }
+        exchangeRate={ quaiPrice.data }
+        accuracyUsd={ 3 }
+        flexWrap="wrap"
+        isLoading={ isLoading }
+      />
+    );
+  };
 
   return (
     <Grid
@@ -370,23 +442,42 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
       { data.type !== 2 && !config.UI.views.tx.hiddenFields?.tx_fee && (
         <DetailsInfoItem
           title="Transaction fee"
-          hint={ data.blob_gas_used ? 'Transaction fee without blob fee' : 'Total transaction fee' }
-          isLoading={ isLoading }
+          hint={ getTxFeeHint() }
+          isLoading={ isLoading || (isCoinbaseTx && donorChainInfo.isLoading) }
         >
-          { data.stability_fee ? (
-            <TxFeeStability data={ data.stability_fee } isLoading={ isLoading }/>
-          ) : (
-            <CurrencyValue
-              value={ fee?.toString() }
-              currency={ data.tx_types?.includes('conversion') ?
-                (data.to?.currency || data.from.currency || currencyUnits.ether) :
-                (data.from.currency || currencyUnits.ether) }
-              exchangeRate={ quaiPrice.data }
-              accuracyUsd={ 3 }
-              flexWrap="wrap"
-              isLoading={ isLoading }
-            />
-          ) }
+          { renderTxFeeContent() }
+        </DetailsInfoItem>
+      ) }
+      { isCoinbaseTx && donorChainInfo.data?.meetsBlockDifficulty && (
+        <DetailsInfoItem
+          title="Parent chain block reward"
+          hint="This coinbase transaction meets the parent chain block difficulty, earning additional block rewards"
+          isLoading={ isLoading || donorChainInfo.isLoading }
+        >
+          <Flex flexWrap="wrap" alignItems="center" gap={ 2 }>
+            { donorChainRewards.map((reward, index) => {
+              const price = donorChainPrices.data?.[reward.symbol];
+              const usdValue = price ? (reward.amountNum * price).toLocaleString('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                maximumFractionDigits: 2,
+              }) : null;
+
+              return (
+                <Tag key={ index } colorScheme="green">
+                  { reward.amount } { reward.symbol }
+                  { usdValue && (
+                    <Text as="span" ml={ 1 } fontWeight="normal">
+                      ({ usdValue })
+                    </Text>
+                  ) }
+                </Tag>
+              );
+            }) }
+            <Text color="text_secondary" fontSize="sm">
+              ({ donorChainInfo.data.powIdName })
+            </Text>
+          </Flex>
         </DetailsInfoItem>
       ) }
 
