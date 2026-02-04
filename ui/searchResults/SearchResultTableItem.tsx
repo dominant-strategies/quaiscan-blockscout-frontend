@@ -11,6 +11,7 @@ import highlightText from 'lib/highlightText';
 import * as mixpanel from 'lib/mixpanel/index';
 import { saveToRecentKeywords } from 'lib/recentSearchKeywords';
 import { ADDRESS_REGEXP } from 'lib/validations/address';
+import currentChain from 'lib/web3/currentChain';
 import * as AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import * as BlobEntity from 'ui/shared/entities/blob/BlobEntity';
 import * as BlockEntity from 'ui/shared/entities/block/BlockEntity';
@@ -68,7 +69,14 @@ const SearchResultTableItem = ({ data, searchTerm, isLoading }: Props) => {
                     dangerouslySetInnerHTML={{ __html: highlightText(name, searchTerm) }}
                   />
                 </LinkInternal>
-                { data.is_verified_via_admin_panel && <IconSvg name="verified_token" boxSize={ 4 } ml={ 1 } color="green.500"/> }
+                { (data.is_verified_via_admin_panel || currentChain.verifiedTokens[data.address]) && (
+                  <>
+                    <IconSvg name="verified_token" boxSize={ 4 } ml={ 1 } color="green.500"/>
+                    { currentChain.verifiedTokens[data.address] && (
+                      <Text ml={ 1 } fontSize="sm" color="green.500">{ currentChain.verifiedTokens[data.address] }</Text>
+                    ) }
+                  </>
+                ) }
               </Flex>
             </Td>
             <Td fontSize="sm" verticalAlign="middle">

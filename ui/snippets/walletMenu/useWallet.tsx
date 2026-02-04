@@ -1,6 +1,7 @@
 import {
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
+import { isQuaiAddress } from 'quais';
 import React from 'react';
 import { useAccount, useAccountEffect, useDisconnect } from 'wagmi';
 
@@ -29,11 +30,19 @@ export default function useWallet({ source }: Params) {
     isConnectionStarted.current = true;
   }, [ open, source ]);
 
-  const handleAccountConnected = React.useCallback(({ isReconnected }: { isReconnected: boolean }) => {
+  const handleAccountConnected = React.useCallback(({ isReconnected, address }: { isReconnected: boolean; address: string }) => {
+    // Validate that the connected address is a valid Quai address on Cyprus-1 (starts with 0x00)
+    if (address && (!isQuaiAddress(address) || !address.toLowerCase().startsWith('0x00'))) {
+      // eslint-disable-next-line no-console
+      console.warn('Connected wallet address is not a valid Quai address. Please use Pelagus wallet.');
+      disconnect();
+      return;
+    }
+
     !isReconnected && isConnectionStarted.current &&
       mixpanel.logEvent(mixpanel.EventTypes.WALLET_CONNECT, { Source: source, Status: 'Connected' });
     isConnectionStarted.current = false;
-  }, [ source ]);
+  }, [ source, disconnect ]);
 
   const handleDisconnect = React.useCallback(() => {
     disconnect();
@@ -43,7 +52,9 @@ export default function useWallet({ source }: Params) {
 
   useAccountEffect({ onConnect: handleAccountConnected });
 
-  const isWalletConnected = isClientLoaded && !isDisconnected && address !== undefined;
+  // Also check on render in case of reconnection (must be valid Quai address on Cyprus-1)
+  const isValidQuaiAddress = address ? (isQuaiAddress(address) && address.toLowerCase().startsWith('0x00')) : true;
+  const isWalletConnected = isClientLoaded && !isDisconnected && address !== undefined && isValidQuaiAddress;
 
   return {
     isWalletConnected,

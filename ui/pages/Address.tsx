@@ -12,6 +12,7 @@ import useContractTabs from 'lib/hooks/useContractTabs';
 import useIsSafeAddress from 'lib/hooks/useIsSafeAddress';
 import useShards from 'lib/hooks/useShards';
 import getQueryParamString from 'lib/router/getQueryParamString';
+import currentChain from 'lib/web3/currentChain';
 import { ADDRESS_TABS_COUNTERS } from 'stubs/address';
 import { USER_OPS_ACCOUNT } from 'stubs/userOps';
 import AddressBlocksValidated from 'ui/address/AddressBlocksValidated';
@@ -180,6 +181,9 @@ const AddressPageContent = () => {
           undefined,
         addressQuery.data?.implementation_address ? { label: 'proxy', display_name: 'Proxy' } : undefined,
         addressQuery.data?.token ? { label: 'token', display_name: 'Token' } : undefined,
+        currentChain.verifiedTokens[hash] ?
+          { label: 'verified_token', display_name: currentChain.verifiedTokens[hash], colorScheme: 'green' } :
+          undefined,
         isSafeAddress ? { label: 'safe', display_name: 'Multisig: Safe' } : undefined,
         config.features.userOps.isEnabled && userOpsAccountQuery.data ?
           { label: 'user_ops_acc', display_name: 'Smart contract wallet' } :
