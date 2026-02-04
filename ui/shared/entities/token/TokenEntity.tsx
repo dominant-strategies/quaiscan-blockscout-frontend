@@ -1,5 +1,5 @@
 import type { ChakraProps } from '@chakra-ui/react';
-import { Image, Skeleton, chakra } from '@chakra-ui/react';
+import { Image, Skeleton, Tooltip, chakra } from '@chakra-ui/react';
 import _omit from 'lodash/omit';
 import React from 'react';
 
@@ -8,7 +8,9 @@ import type { TokenInfo } from 'types/api/token';
 import { route } from 'nextjs-routes';
 
 import useShards from 'lib/hooks/useShards';
+import currentChain from 'lib/web3/currentChain';
 import * as EntityBase from 'ui/shared/entities/base/components';
+import IconSvg from 'ui/shared/IconSvg';
 import TokenLogoPlaceholder from 'ui/shared/TokenLogoPlaceholder';
 import TruncatedTextTooltip from 'ui/shared/TruncatedTextTooltip';
 
@@ -125,6 +127,30 @@ const Symbol = (props: SymbolProps) => {
   );
 };
 
+type VerifiedBadgeProps = Pick<EntityProps, 'token' | 'isLoading'>;
+
+const VerifiedBadge = (props: VerifiedBadgeProps) => {
+  const verifiedName = currentChain.verifiedTokens[props.token.address];
+
+  if (!verifiedName || props.isLoading) {
+    return null;
+  }
+
+  return (
+    <Tooltip label={ `Verified token: ${ verifiedName }` }>
+      <chakra.span display="inline-flex" flexShrink={ 0 } alignItems="center">
+        <IconSvg
+          name="verified"
+          boxSize={ 4 }
+          color="green.500"
+          ml={ 1 }
+          cursor="pointer"
+        />
+      </chakra.span>
+    </Tooltip>
+  );
+};
+
 type CopyProps = Omit<EntityBase.CopyBaseProps, 'text'> & Pick<EntityProps, 'token'>;
 
 const Copy = (props: CopyProps) => {
@@ -156,6 +182,7 @@ const TokenEntity = (props: EntityProps) => {
         <Content { ...partsProps }/>
       </Link>
       <Symbol { ...partsProps }/>
+      <VerifiedBadge { ...partsProps }/>
       <Copy { ...partsProps }/>
     </Container>
   );
