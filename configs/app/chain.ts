@@ -16,6 +16,7 @@ const chain = Object.freeze({
     symbol: getEnvValue('NEXT_PUBLIC_NETWORK_GOVERNANCE_TOKEN_SYMBOL'),
   },
   rpcUrl: getEnvValue('NEXT_PUBLIC_NETWORK_RPC_URL'),
+  debugRpcUrl: getEnvValue('NEXT_PUBLIC_NETWORK_DEBUG_RPC_URL') || 'https://debug.rpc.quai.network',
   isTestnet: getEnvValue('NEXT_PUBLIC_IS_TESTNET') === 'true',
   verificationType: getEnvValue('NEXT_PUBLIC_NETWORK_VERIFICATION_TYPE') || 'mining',
 });
