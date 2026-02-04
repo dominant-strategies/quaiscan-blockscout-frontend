@@ -18,6 +18,7 @@ import * as metadata from 'lib/metadata';
 import getQueryParamString from 'lib/router/getQueryParamString';
 import useSocketChannel from 'lib/socket/useSocketChannel';
 import useSocketMessage from 'lib/socket/useSocketMessage';
+import currentChain from 'lib/web3/currentChain';
 import * as addressStubs from 'stubs/address';
 import * as tokenStubs from 'stubs/token';
 import { generateListStub } from 'stubs/utils';
@@ -278,13 +279,19 @@ const TokenPageContent = () => {
     };
   }, [ appProps.referrer ]);
 
+  const verifiedTokenLabel = currentChain.verifiedTokens[hashString];
+  const isVerifiedToken = verifiedInfoQuery.data?.tokenAddress || verifiedTokenLabel;
+
   const titleContentAfter = (
     <>
-      { verifiedInfoQuery.data?.tokenAddress && (
-        <Tooltip label={ `Information on this token has been verified by ${ config.chain.name }` }>
-          <Box boxSize={ 6 }>
+      { isVerifiedToken && (
+        <Tooltip label={ verifiedTokenLabel || `Information on this token has been verified by ${ config.chain.name }` }>
+          <Flex alignItems="center">
             <IconSvg name="verified_token" color="green.500" boxSize={ 6 } cursor="pointer"/>
-          </Box>
+            { verifiedTokenLabel && (
+              <Box ml={ 1 } fontSize="sm" color="green.500">{ verifiedTokenLabel }</Box>
+            ) }
+          </Flex>
         </Tooltip>
       ) }
       <EntityTags

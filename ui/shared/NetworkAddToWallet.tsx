@@ -1,41 +1,67 @@
 import { Button } from '@chakra-ui/react';
 import React from 'react';
 
-import config from 'configs/app';
 import useToast from 'lib/hooks/useToast';
 import * as mixpanel from 'lib/mixpanel/index';
-import useAddOrSwitchChain from 'lib/web3/useAddOrSwitchChain';
-import useProvider from 'lib/web3/useProvider';
-import { WALLETS_INFO } from 'lib/web3/wallets';
 import IconSvg from 'ui/shared/IconSvg';
 
-const feature = config.features.web3Wallet;
+// Wrapped QUAI token on Ethereum mainnet
+const WRAPPED_QUAI_TOKEN = {
+  address: '0x70b7f7044d2ca8e2f1e999b90ef16d7cb7a0cda1',
+  symbol: 'WQUAI',
+  decimals: 18,
+  image: 'https://s2.coinmarketcap.com/static/img/coins/64x64/22354.png',
+};
 
 const NetworkAddToWallet = () => {
   const toast = useToast();
-  const { provider, wallet } = useProvider();
-  const addOrSwitchChain = useAddOrSwitchChain();
+  const [ hasEthereumWallet, setHasEthereumWallet ] = React.useState(false);
+
+  React.useEffect(() => {
+    // Check if user has an Ethereum wallet (MetaMask, etc.)
+    setHasEthereumWallet(typeof window !== 'undefined' && 'ethereum' in window && Boolean(window.ethereum));
+  }, []);
 
   const handleClick = React.useCallback(async() => {
-    if (!wallet || !provider) {
+    if (!window.ethereum) {
+      toast({
+        position: 'top-right',
+        title: 'No wallet detected',
+        description: 'Please install MetaMask or another Ethereum wallet',
+        status: 'warning',
+        variant: 'subtle',
+        isClosable: true,
+      });
       return;
     }
 
     try {
-      await addOrSwitchChain();
+      await window.ethereum.request({
+        method: 'wallet_watchAsset',
+        params: {
+          type: 'ERC20',
+          options: {
+            address: WRAPPED_QUAI_TOKEN.address,
+            symbol: WRAPPED_QUAI_TOKEN.symbol,
+            decimals: WRAPPED_QUAI_TOKEN.decimals,
+            image: WRAPPED_QUAI_TOKEN.image,
+          },
+        },
+      });
 
       toast({
         position: 'top-right',
         title: 'Success',
-        description: 'Successfully added network to your wallet',
+        description: 'Wrapped QUAI token added to your wallet',
         status: 'success',
         variant: 'subtle',
         isClosable: true,
       });
 
       mixpanel.logEvent(mixpanel.EventTypes.ADD_TO_WALLET, {
-        Target: 'network',
-        Wallet: wallet,
+        Target: 'token',
+        Wallet: 'metamask',
+        Token: WRAPPED_QUAI_TOKEN.symbol,
       });
 
     } catch (error) {
@@ -48,16 +74,16 @@ const NetworkAddToWallet = () => {
         isClosable: true,
       });
     }
-  }, [ addOrSwitchChain, provider, toast, wallet ]);
+  }, [ toast ]);
 
-  if (!provider || !wallet || !config.chain.rpcUrl || !feature.isEnabled) {
+  if (!hasEthereumWallet) {
     return null;
   }
 
   return (
     <Button variant="outline" size="sm" onClick={ handleClick }>
-      <IconSvg name={ WALLETS_INFO[wallet].icon } boxSize={ 5 } mr={ 2 }/>
-        Add { config.chain.name }
+      <IconSvg name="wallets/metamask" boxSize={ 5 } mr={ 2 }/>
+        Add Wrapped QUAI
     </Button>
   );
 };

@@ -4,6 +4,7 @@ import React from 'react';
 import type { SearchResultToken } from 'types/api/search';
 
 import highlightText from 'lib/highlightText';
+import currentChain from 'lib/web3/currentChain';
 import * as TokenEntity from 'ui/shared/entities/token/TokenEntity';
 import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 import IconSvg from 'ui/shared/IconSvg';
@@ -16,7 +17,14 @@ interface Props {
 
 const SearchBarSuggestToken = ({ data, isMobile, searchTerm }: Props) => {
   const icon = <TokenEntity.Icon token={{ ...data, type: data.token_type }}/>;
-  const verifiedIcon = <IconSvg name="verified_token" boxSize={ 4 } color="green.500" ml={ 1 }/>;
+  const isVerified = data.is_verified_via_admin_panel || currentChain.verifiedTokens[data.address];
+  const verifiedLabel = currentChain.verifiedTokens[data.address];
+  const verifiedIcon = (
+    <>
+      <IconSvg name="verified_token" boxSize={ 4 } color="green.500" ml={ 1 }/>
+      { verifiedLabel && <Text ml={ 1 } fontSize="sm" color="green.500">{ verifiedLabel }</Text> }
+    </>
+  );
   const name = (
     <Text
       fontWeight={ 700 }
@@ -51,7 +59,7 @@ const SearchBarSuggestToken = ({ data, isMobile, searchTerm }: Props) => {
         <Flex alignItems="center">
           { icon }
           { name }
-          { data.is_verified_via_admin_panel && verifiedIcon }
+          { isVerified && verifiedIcon }
         </Flex>
         <Grid templateColumns={ templateCols } alignItems="center" gap={ 2 }>
           <Flex alignItems="center" overflow="hidden">
@@ -65,11 +73,16 @@ const SearchBarSuggestToken = ({ data, isMobile, searchTerm }: Props) => {
   }
 
   return (
-    <Grid templateColumns="228px 1fr auto" gap={ 2 }>
-      <Flex alignItems="center">
+    <Grid templateColumns="minmax(228px, 400px) 1fr auto" gap={ 2 }>
+      <Flex alignItems="center" minW={ 0 }>
         { icon }
         { name }
-        { data.is_verified_via_admin_panel && verifiedIcon }
+        { isVerified && (
+          <Flex alignItems="center" flexShrink={ 0 }>
+            <IconSvg name="verified_token" boxSize={ 4 } color="green.500" ml={ 1 }/>
+            { verifiedLabel && <Text ml={ 1 } fontSize="sm" color="green.500" whiteSpace="nowrap">{ verifiedLabel }</Text> }
+          </Flex>
+        ) }
       </Flex>
       <Flex alignItems="center" overflow="hidden">
         { address }
