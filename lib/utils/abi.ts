@@ -2,7 +2,7 @@ import { splitAuxdata, AuxdataStyle } from '@ethereum-sourcify/bytecode-utils';
 import { arrayify } from '@ethersproject/bytes';
 import bs58 from 'bs58';
 import { decode } from 'cbor-x';
-import type { Provider } from 'quais';
+import type { FunctionFragment, Provider } from 'quais';
 import { Interface, quais } from 'quais';
 
 export const getABIFromAddress = async(address: string, provider: Provider, depth = 0): Promise<Array<any> | undefined> => {
@@ -36,8 +36,14 @@ export const getABIFromAddress = async(address: string, provider: Provider, dept
       throw new Error(`Failed to fetch metadata: ${ response.statusText } (Status: ${ response.status })`);
     }
     const metadata = await response.json() as any;
-    if (looksLikeTransparentProxyAbi(Interface.from(metadata.output.abi))) {
-      // If the ABI is a transparent proxy, try to get the implementation from the storage slot
+    const parsedAbi = Interface.from(metadata.output.abi);
+
+    // Check if this looks like a proxy ABI (has any proxy function)
+    // OR if the ABI has no functions at all (some proxies only use fallback)
+    const hasNoFunctions = !parsedAbi.fragments.some((f) => f.type === 'function');
+
+    if (looksLikeTransparentProxyAbi(parsedAbi) || hasNoFunctions) {
+      // Try to get the implementation from the EIP-1967 storage slot
       const impl = await getImplementationFrom1967(provider, resolvedAddress);
       if (impl && depth < 5) {
         return getABIFromAddress(impl, provider, depth + 1); // recurse once
@@ -50,17 +56,17 @@ export const getABIFromAddress = async(address: string, provider: Provider, dept
 };
 
 /**
- * If `code` is an EIP‑1167 minimal‑proxy return the embedded implementation
+ * If `code` is an EIP-1167 minimal-proxy return the embedded implementation
  * address, otherwise return `undefined`.
  */
 export function getImplementationFrom1167(code: string): string | undefined {
-  // minimal‑proxy is always 45 bytes (0x2d) long
+  // minimal-proxy is always 45 bytes (0x2d) long
   const cleaned = code.replace(/^0x/, '').toLowerCase();
   if (cleaned.length !== 2 * 45) {
     return;
   }
 
-  // opcode layout: … 36 3d 73 <20‑byte‑impl> 5a f4 3d 82 …
+  // opcode layout: … 36 3d 73 <20-byte-impl> 5a f4 3d 82 …
   const prefix = '363d3d373d3d3d363d73';
   const suffix = '5af43d82803e903d91602b57fd5bf3';
 
@@ -109,7 +115,7 @@ async function getImplementationFrom1967(
   provider: Provider,
   proxy: string,
 ): Promise<string | undefined> {
-  // bytes32(uint256(keccak256('eip1967.proxy.implementation'))‑1)
+  // bytes32(uint256(keccak256('eip1967.proxy.implementation'))-1)
   const slot =
       '0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc';
   const raw = await provider.getStorage(proxy, slot);
@@ -121,19 +127,53 @@ async function getImplementationFrom1967(
   return (await provider.getCode(addr)) !== '0x' ? addr : undefined;
 }
 
+/**
+ * Detects if an ABI looks like a proxy contract.
+ *
+ * Returns true if the ABI contains ANY known proxy function,
+ * meaning we should check the EIP-1967 implementation slot.
+ *
+ * False positives are safe — if the slot is empty, we return the original ABI.
+ */
 function looksLikeTransparentProxyAbi(abi: Interface | undefined): boolean {
   if (!abi) {
     return false;
   }
 
-  // “function” fragments are the ones that can actually be *called*
-  // through `CALLDATA`.  A transparent proxy exposes no such functions
-  // (the upgrade‑to‑and‑call selector is dispatched via `fallback`).
-  const hasCallableFns = abi.fragments.some((f) => f.type === 'function');
+  // Known proxy function names across various proxy patterns
+  const PROXY_FUNCTIONS = new Set([
+    // OpenZeppelin TransparentUpgradeableProxy
+    'implementation',
+    'upgradeTo',
+    'upgradeToAndCall',
+    'changeAdmin',
+    // EIP-1967 beacon proxy
+    'beacon',
+    'setBeacon',
+    // Gnosis Safe / other patterns
+    'masterCopy',
+    // EIP-2535 Diamond proxy
+    'facets',
+    'facetFunctionSelectors',
+    'facetAddresses',
+    'facetAddress',
+    'diamondCut',
+    // Common proxy helpers
+    'proxyType',
+    'proxyOwner',
+    'pendingProxyOwner',
+    'transferProxyOwnership',
+    'claimProxyOwnership',
+    'getImplementation',
+    'getAdmin',
+    'getBeacon',
+  ]);
 
-  // true  → proxy  (needs another hop)
-  // false → implementation
-  return !hasCallableFns;
+  // Get all function fragments
+  const functions = abi.fragments.filter((f): f is FunctionFragment => f.type === 'function');
+
+  // If the contract has ANY known proxy function, check the EIP-1967 slot
+  return functions.some((fn) => PROXY_FUNCTIONS.has(fn.name));
 }
 
 export async function getAbiFromIpfsWithTimeout(
