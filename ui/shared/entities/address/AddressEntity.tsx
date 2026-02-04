@@ -10,7 +10,9 @@ import { route } from 'nextjs-routes';
 import { useAddressHighlightContext } from 'lib/contexts/addressHighlight';
 import useResizeObserver from 'lib/hooks/useResizeObserver';
 import useShards from 'lib/hooks/useShards';
+import currentChain from 'lib/web3/currentChain';
 import * as EntityBase from 'ui/shared/entities/base/components';
+import IconSvg from 'ui/shared/IconSvg';
 
 import { getIconProps } from '../base/utils';
 import AddressIdenticon from './AddressIdenticon';
@@ -136,6 +138,7 @@ const AddressEntry = (props: EntityProps) => {
   const shard = shards[shardId];
   const [ parentRef, size ] = useResizeObserver();
   const context = useAddressHighlightContext();
+  const verifiedTokenName = currentChain.verifiedTokens[props.address.hash];
 
   const windowWidth = typeof window !== 'undefined' && window.innerWidth ? window.innerWidth : 0;
   const addressTruncation = windowWidth > 764 && partsProps['truncation'] === undefined ? 'dynamic' : 'constant';
@@ -152,7 +155,7 @@ const AddressEntry = (props: EntityProps) => {
       position="relative"
     >
       <Icon { ...partsProps }/>
-      <div ref={ parentRef } className="inline-block">
+      <Flex ref={ parentRef } display="inline-flex" alignItems="center" className="inline-block">
         <Link { ...linkProps }>
           <Content { ...partsProps }/>
         </Link>
@@ -161,7 +164,20 @@ const AddressEntry = (props: EntityProps) => {
             <TagLabel lineHeight={ 2 }>{ shard.title }</TagLabel>
           </Tag>
         ) }
-      </div>
+        { verifiedTokenName && !props.isLoading && (
+          <Tooltip label={ `Verified token: ${ verifiedTokenName }` }>
+            <chakra.span display="inline-flex" flexShrink={ 0 } alignItems="center">
+              <IconSvg
+                name="verified"
+                boxSize={ 4 }
+                color="green.500"
+                ml={ 1 }
+                cursor="pointer"
+              />
+            </chakra.span>
+          </Tooltip>
+        ) }
+      </Flex>
       <Copy { ...partsProps }/>
     </Container>
   );
