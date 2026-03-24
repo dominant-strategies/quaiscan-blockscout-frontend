@@ -12,6 +12,12 @@ import * as configs from 'playwright/utils/configs';
 import Footer from './Footer';
 
 const FOOTER_LINKS_URL = app.url + buildExternalAssetFilePath('NEXT_PUBLIC_FOOTER_LINKS', 'https://localhost:3000/footer-links.json') || '';
+const FOOTER_ATTRIBUTION_ENVS = [
+  { name: 'NEXT_PUBLIC_GIT_TAG', value: 'v2.7.0' },
+];
+const BACKEND_VERSION_RESPONSE = {
+  backend_version: 'v10.2.1',
+};
 
 const BACKEND_VERSION_API_URL = buildApiUrl('config_backend_version');
 const INDEXING_ALERT_API_URL = buildApiUrl('homepage_indexing_status');
@@ -20,6 +26,7 @@ base.describe('with custom links, max cols', () => {
   const test = base.extend({
     context: contextWithEnvs([
       { name: 'NEXT_PUBLIC_FOOTER_LINKS', value: FOOTER_LINKS_URL },
+      ...FOOTER_ATTRIBUTION_ENVS,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ]) as any,
   });
@@ -28,6 +35,12 @@ base.describe('with custom links, max cols', () => {
     await page.route(FOOTER_LINKS_URL, (route) => {
       return route.fulfill({
         body: JSON.stringify(FOOTER_LINKS),
+      });
+    });
+
+    await page.route(BACKEND_VERSION_API_URL, (route) => {
+      return route.fulfill({
+        body: JSON.stringify(BACKEND_VERSION_RESPONSE),
       });
     });
 
@@ -67,6 +80,7 @@ base.describe('with custom links, min cols', () => {
   const test = base.extend({
     context: contextWithEnvs([
       { name: 'NEXT_PUBLIC_FOOTER_LINKS', value: FOOTER_LINKS_URL },
+      ...FOOTER_ATTRIBUTION_ENVS,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ]) as any,
   });
@@ -75,6 +89,12 @@ base.describe('with custom links, min cols', () => {
     await page.route(FOOTER_LINKS_URL, (route) => {
       return route.fulfill({
         body: JSON.stringify([ FOOTER_LINKS[0] ]),
+      });
+    });
+
+    await page.route(BACKEND_VERSION_API_URL, (route) => {
+      return route.fulfill({
+        body: JSON.stringify(BACKEND_VERSION_RESPONSE),
       });
     });
 
@@ -89,7 +109,14 @@ base.describe('with custom links, min cols', () => {
 });
 
 base.describe('without custom links', () => {
-  base('base view +@dark-mode +@mobile', async({ mount, page }) => {
+  const test = base.extend({
+    context: contextWithEnvs([
+      ...FOOTER_ATTRIBUTION_ENVS,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ]) as any,
+  });
+
+  test('base view +@dark-mode +@mobile', async({ mount, page }) => {
     await page.evaluate(() => {
       window.ethereum = {
         isMetaMask: true,
@@ -98,9 +125,7 @@ base.describe('without custom links', () => {
     });
     await page.route(BACKEND_VERSION_API_URL, (route) => {
       return route.fulfill({
-        body: JSON.stringify({
-          backend_version: 'v5.2.0-beta.+commit.1ce1a355',
-        }),
+        body: JSON.stringify(BACKEND_VERSION_RESPONSE),
       });
     });
 
@@ -113,12 +138,16 @@ base.describe('without custom links', () => {
     await expect(page).toHaveScreenshot();
   });
 
-  base('with indexing alert +@dark-mode +@mobile', async({ mount, page }) => {
+  test('with indexing alert +@dark-mode +@mobile', async({ mount, page }) => {
     await page.evaluate(() => {
       window.ethereum = {
         providers: [ { isMetaMask: true, _events: {} } ],
       };
     });
+
+    await page.route(BACKEND_VERSION_API_URL, (route) => route.fulfill({
+      body: JSON.stringify(BACKEND_VERSION_RESPONSE),
+    }));
 
     await page.route(INDEXING_ALERT_API_URL, (route) => route.fulfill({
       status: 200,

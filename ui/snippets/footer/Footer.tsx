@@ -1,5 +1,5 @@
 import type { GridProps } from '@chakra-ui/react';
-import { Box, Grid, Flex, Text, Link, VStack, Skeleton } from '@chakra-ui/react';
+import { Box, Grid, Flex, Text, Link, VStack, Skeleton, useColorModeValue } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import React from 'react';
 
@@ -10,6 +10,7 @@ import type { ResourceError } from 'lib/api/resources';
 import useApiQuery from 'lib/api/useApiQuery';
 import useFetch from 'lib/hooks/useFetch';
 // import useIssueUrl from 'lib/hooks/useIssueUrl';
+import IconSvg from 'ui/shared/IconSvg';
 import NetworkAddToWallet from 'ui/shared/NetworkAddToWallet';
 
 import FooterLinkItem from './FooterLinkItem';
@@ -17,6 +18,10 @@ import IntTxsIndexingStatus from './IntTxsIndexingStatus';
 import getApiVersionUrl from './utils/getApiVersionUrl';
 
 const MAX_LINKS_COLUMNS = 4;
+const BLOCKSCOUT_URL = 'https://www.blockscout.com';
+const BLOCKSCOUT_COPYRIGHT_START_YEAR = 2023;
+const BLOCKSCOUT_BACKEND_REPO_URL = 'https://github.com/blockscout/blockscout';
+const BLOCKSCOUT_FRONTEND_REPO_URL = 'https://github.com/blockscout/frontend';
 
 const FRONT_VERSION_URL = `https://github.com/blockscout/frontend/tree/${ config.UI.footer.frontendVersion }`;
 const FRONT_COMMIT_URL = `https://github.com/blockscout/frontend/commit/${ config.UI.footer.frontendCommit }`;
@@ -31,6 +36,11 @@ const Footer = () => {
   const apiVersionUrl = getApiVersionUrl(backendVersionData?.backend_version);
   // const issueUrl = useIssueUrl(backendVersionData?.backend_version);
   const BLOCKSCOUT_LINKS: any[] = [];
+  const blockscoutLogoColor = useColorModeValue('blue.600', 'white');
+  const currentYear = new Date().getFullYear();
+  const copyrightYears = currentYear > BLOCKSCOUT_COPYRIGHT_START_YEAR ?
+    `${ BLOCKSCOUT_COPYRIGHT_START_YEAR }-${ currentYear }` :
+    String(BLOCKSCOUT_COPYRIGHT_START_YEAR);
   // const BLOCKSCOUT_LINKS = [
   //   {
   //     icon: 'edit' as const,
@@ -76,16 +86,34 @@ const Footer = () => {
   //   },
   // ];
 
+  const backendLink = (
+    <Link href={ apiVersionUrl || BLOCKSCOUT_BACKEND_REPO_URL } target="_blank" rel="noopener noreferrer">
+      { backendVersionData?.backend_version || 'blockscout' }
+    </Link>
+  );
+
   const frontendLink = (() => {
     if (config.UI.footer.frontendVersion) {
-      return <Link href={ FRONT_VERSION_URL } target="_blank">{ config.UI.footer.frontendVersion }</Link>;
+      return (
+        <Link href={ FRONT_VERSION_URL } target="_blank" rel="noopener noreferrer">
+          { config.UI.footer.frontendVersion }
+        </Link>
+      );
     }
 
     if (config.UI.footer.frontendCommit) {
-      return <Link href={ FRONT_COMMIT_URL } target="_blank">{ config.UI.footer.frontendCommit }</Link>;
+      return (
+        <Link href={ FRONT_COMMIT_URL } target="_blank" rel="noopener noreferrer">
+          { config.UI.footer.frontendCommit }
+        </Link>
+      );
     }
 
-    return null;
+    return (
+      <Link href={ BLOCKSCOUT_FRONTEND_REPO_URL } target="_blank" rel="noopener noreferrer">
+        frontend
+      </Link>
+    );
   })();
 
   const fetch = useFetch();
@@ -118,26 +146,49 @@ const Footer = () => {
 
   const renderProjectInfo = React.useCallback((gridArea?: GridProps['gridArea']) => {
     return (
-      <Box gridArea={ gridArea }>
-        <Link fontSize="xs" href="https://quaiscan.io">quaiscan.io</Link>
-        <Text mt={ 3 } fontSize="xs">
-          Quaiscan is a tool for inspecting and analyzing Quai network.
-        </Text>
-        {/* <VStack spacing={ 1 } mt={ 6 } alignItems="start">
-          { apiVersionUrl && (
-            <Text fontSize="xs">
-              Backend: <Link href={ apiVersionUrl } target="_blank">{ backendVersionData?.backend_version }</Link>
+      <VStack gridArea={ gridArea } spacing={ 6 } alignItems="start">
+        <Box>
+          <Link fontSize="xs" href="https://quaiscan.io">quaiscan.io</Link>
+          <Text mt={ 3 } fontSize="xs" color="text_secondary">
+            Quaiscan is a tool for inspecting and analyzing Quai network.
+          </Text>
+        </Box>
+
+        <Box>
+          <Flex flexWrap="wrap" alignItems="center" columnGap={ 2 } rowGap={ 2 }>
+            <Text fontSize="xs" color="text_secondary">Made with</Text>
+            <Link
+              href={ BLOCKSCOUT_URL }
+              target="_blank"
+              rel="noopener noreferrer"
+              display="inline-flex"
+              alignItems="center"
+              aria-label="Blockscout"
+            >
+              <IconSvg
+                name="networks/logo-placeholder"
+                width="101px"
+                height="20px"
+                color={ blockscoutLogoColor }
+              />
+            </Link>
+          </Flex>
+
+          <VStack spacing={ 1 } mt={ 3 } alignItems="start">
+            <Text fontSize="xs" color="text_secondary">
+              Backend: { backendLink }
             </Text>
-          ) }
-          { frontendLink && (
-            <Text fontSize="xs">
+            <Text fontSize="xs" color="text_secondary">
               Frontend: { frontendLink }
             </Text>
-          ) }
-        </VStack> */}
-      </Box>
+            <Text fontSize="xs" color="text_secondary">
+              Copyright © Blockscout Limited { copyrightYears }
+            </Text>
+          </VStack>
+        </Box>
+      </VStack>
     );
-  }, [ apiVersionUrl, backendVersionData?.backend_version, frontendLink ]);
+  }, [ backendLink, blockscoutLogoColor, copyrightYears, frontendLink ]);
 
   const containerProps: GridProps = {
     as: 'footer',
