@@ -26,7 +26,8 @@ const config: Feature<{
     chain.currency.symbol &&
     chain.currency.decimals &&
     chain.rpcUrl &&
-    walletConnectProjectId
+    walletConnectProjectId &&
+    typeof connectorsForWallets === 'function'
   ) {
     const connectors = connectorsForWallets(
       [

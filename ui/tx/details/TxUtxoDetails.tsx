@@ -1,13 +1,13 @@
-import { Box, Flex, Text } from '@chakra-ui/react';
+import { Box, Flex, Table, TableContainer, Tbody, Td, Text, Th, Thead, Tr } from '@chakra-ui/react';
 import { denominations, formatQi } from 'quais';
 import React from 'react';
 
 import type { Transaction, UtxoTransaction } from 'types/api/transaction';
 
+import CopyToClipboard from 'ui/shared/CopyToClipboard';
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
 import HashStringShorten from 'ui/shared/HashStringShorten';
-import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 
 interface Props {
   data: Transaction | UtxoTransaction;
@@ -36,8 +36,32 @@ const DetailRow = ({ label, children }: DetailRowProps) => {
   );
 };
 
-const formatUtxoDenomination = (denominationIndex: number) => {
-  const denomination = denominations[denominationIndex];
+const parseNumericValue = (value: number | string | undefined) => {
+  if (typeof value === 'number') {
+    return Number.isFinite(value) ? value : undefined;
+  }
+
+  if (typeof value !== 'string') {
+    return undefined;
+  }
+
+  if (value.startsWith('0x') || value.startsWith('0X')) {
+    const parsedHex = Number.parseInt(value, 16);
+    return Number.isNaN(parsedHex) ? undefined : parsedHex;
+  }
+
+  const parsedNumber = Number.parseInt(value, 10);
+  return Number.isNaN(parsedNumber) ? undefined : parsedNumber;
+};
+
+const formatUtxoDenomination = (denominationIndex: number | string) => {
+  const normalizedIndex = parseNumericValue(denominationIndex);
+
+  if (normalizedIndex === undefined) {
+    return String(denominationIndex);
+  }
+
+  const denomination = denominations[normalizedIndex];
 
   if (denomination === undefined) {
     return String(denominationIndex);
@@ -60,14 +84,12 @@ const numberFormat = new Intl.NumberFormat('en-US');
 
 const PubKeyValue = ({ value }: { value: string }) => {
   return (
-    <>
-      <Box display={{ base: 'block', lg: 'none' }} overflow="hidden">
+    <Flex alignItems="center" minW={ 0 } width="100%">
+      <Box overflow="hidden" minW={ 0 }>
         <HashStringShorten hash={ value } type="long"/>
       </Box>
-      <Box display={{ base: 'none', lg: 'block' }} overflow="hidden">
-        <HashStringShortenDynamic hash={ value }/>
-      </Box>
-    </>
+      <CopyToClipboard text={ value }/>
+    </Flex>
   );
 };
 
@@ -155,75 +177,104 @@ const TxUtxoOutputs = ({ data, isLoading }: Props) => {
     return null;
   }
 
+  const outputs = data.outputs.flatMap((output) => {
+    const address = output.Address;
+    const denomination = parseNumericValue(output.Denomination as number | string | undefined);
+    const lock = parseNumericValue(output.Lock as number | string | undefined);
+
+    const camelCaseOutput = output as unknown as {
+      address?: string;
+      denomination?: number | string;
+      lock?: number | string;
+    };
+
+    if (address && denomination !== undefined && lock !== undefined) {
+      return [ { address, denomination, lock } ];
+    }
+
+    const camelCaseAddress = camelCaseOutput.address;
+    const camelCaseDenomination = parseNumericValue(camelCaseOutput.denomination);
+    const camelCaseLock = parseNumericValue(camelCaseOutput.lock);
+
+    if (camelCaseAddress && camelCaseDenomination !== undefined && camelCaseLock !== undefined) {
+      return [ { address: camelCaseAddress, denomination: camelCaseDenomination, lock: camelCaseLock } ];
+    }
+
+    return [];
+  });
+
   return (
-    <Box>
-      { data.outputs.map((output, index) => {
-        // Type-safe property access
-        const address = output.Address;
-        const denomination = output.Denomination;
-        const lock = output.Lock;
-
-        // Runtime check for camelCase properties if PascalCase ones don't exist
-        const camelCaseOutput = output as unknown as {
-          address?: string;
-          denomination?: number;
-          lock?: number;
-        };
-
-        if (!address || denomination === undefined || lock === undefined) {
-          // Try camelCase properties
-          const camelCaseAddress = camelCaseOutput.address;
-          const camelCaseDenomination = camelCaseOutput.denomination;
-          const camelCaseLock = camelCaseOutput.lock;
-
-          if (!camelCaseAddress || camelCaseDenomination === undefined || camelCaseLock === undefined) {
-            return null;
-          }
-
-          return (
-            <Box key={ index } mb={ 4 }>
-              <Text fontWeight={ 500 } mb={ 2 }>Output #{ index + 1 }</Text>
-              <Flex flexDir="column" gap={ 2 }>
+    <>
+      <Box display={{ base: 'block', lg: 'none' }} width="100%">
+        <Flex direction="column" gap={ 3 } width="100%">
+          { outputs.map((output, index) => (
+            <Box
+              key={ `${ output.address }-${ index }` }
+              borderWidth="1px"
+              borderColor="gray.200"
+              borderRadius="md"
+              p={ 3 }
+            >
+              <Text fontWeight={ 600 } mb={ 3 }>Output #{ index + 1 }</Text>
+              <Flex direction="column" gap={ 2 }>
                 <DetailRow label="Address:">
                   <AddressEntity
-                    address={{ hash: camelCaseAddress }}
+                    address={{ hash: output.address }}
                     isLoading={ isLoading }
                     truncation="constant"
                   />
                 </DetailRow>
                 <DetailRow label="Denomination:">
-                  <Text>{ formatUtxoDenomination(camelCaseDenomination) }</Text>
+                  <Text whiteSpace="normal">{ formatUtxoDenomination(output.denomination) }</Text>
                 </DetailRow>
                 <DetailRow label="Lock:">
-                  <Text>{ camelCaseLock }</Text>
+                  <Text>{ output.lock }</Text>
                 </DetailRow>
               </Flex>
             </Box>
-          );
-        }
+          )) }
+        </Flex>
+      </Box>
 
-        return (
-          <Box key={ index } mb={ 4 }>
-            <Text fontWeight={ 500 } mb={ 2 }>Output #{ index + 1 }</Text>
-            <Flex flexDir="column" gap={ 2 }>
-              <DetailRow label="Address:">
-                <AddressEntity
-                  address={{ hash: address }}
-                  isLoading={ isLoading }
-                  truncation="constant"
-                />
-              </DetailRow>
-              <DetailRow label="Denomination:">
-                <Text>{ formatUtxoDenomination(denomination) }</Text>
-              </DetailRow>
-              <DetailRow label="Lock:">
-                <Text>{ lock }</Text>
-              </DetailRow>
-            </Flex>
-          </Box>
-        );
-      }) }
-    </Box>
+      <TableContainer
+        display={{ base: 'none', lg: 'block' }}
+        width="fit-content"
+        maxW="100%"
+        overflowX="auto"
+        borderWidth="1px"
+        borderColor="gray.200"
+        borderRadius="md"
+      >
+        <Table size="sm" variant="simple" width="auto" minW="640px">
+          <Thead>
+            <Tr>
+              <Th w="72px" px={ 3 }>Output</Th>
+              <Th px={ 3 }>Address</Th>
+              <Th w="180px" px={ 3 }>Denomination</Th>
+              <Th w="80px" px={ 3 }>Lock</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            { outputs.map((output, index) => (
+              <Tr key={ `${ output.address }-${ index }` }>
+                <Td whiteSpace="nowrap" fontWeight={ 500 } px={ 3 }>#{ index + 1 }</Td>
+                <Td px={ 3 }>
+                  <Box minW={ 0 }>
+                    <AddressEntity
+                      address={{ hash: output.address }}
+                      isLoading={ isLoading }
+                      truncation="constant"
+                    />
+                  </Box>
+                </Td>
+                <Td whiteSpace="nowrap" px={ 3 }>{ formatUtxoDenomination(output.denomination) }</Td>
+                <Td whiteSpace="nowrap" px={ 3 }>{ output.lock }</Td>
+              </Tr>
+            )) }
+          </Tbody>
+        </Table>
+      </TableContainer>
+    </>
   );
 };
 

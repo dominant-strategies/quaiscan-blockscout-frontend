@@ -61,7 +61,7 @@ const NavLink = ({ item, isCollapsed, px, className, onClick }: Props) => {
       >
         <HStack spacing={ 3 } overflow="hidden">
           <NavLinkIcon item={ item }/>
-          <Text { ...styleProps.textProps }>
+          <Text as="span" display="inline-flex" alignItems="center" { ...styleProps.textProps }>
             <span>{ item.text }</span>
             { !isInternalLink && <IconSvg name="arrows/north-east" boxSize={ 4 } color="text_secondary" verticalAlign="middle"/> }
           </Text>
