@@ -1,4 +1,5 @@
 import { Box, Flex, Text } from '@chakra-ui/react';
+import { denominations, formatQi } from 'quais';
 import React from 'react';
 
 import type { Transaction, UtxoTransaction } from 'types/api/transaction';
@@ -12,13 +13,43 @@ interface Props {
   isLoading?: boolean;
 }
 
-// Type guard to check if an object has a property
-function hasProperty<T extends object, K extends string>(
-  obj: T,
-  key: K
-): obj is T & Record<K, unknown> {
-  return key in obj;
+interface DetailRowProps {
+  label: string;
+  children: React.ReactNode;
 }
+
+const DetailRow = ({ label, children }: DetailRowProps) => {
+  return (
+    <Flex
+      direction={{ base: 'column', lg: 'row' }}
+      alignItems={{ base: 'stretch', lg: 'center' }}
+      gap={ 2 }
+      width="100%"
+      minW={ 0 }
+    >
+      <Text fontWeight={ 500 } flexShrink={ 0 }>{ label }</Text>
+      <Box minW={ 0 } width="100%" overflow="hidden">
+        { children }
+      </Box>
+    </Flex>
+  );
+};
+
+const formatUtxoDenomination = (denominationIndex: number) => {
+  const denomination = denominations[denominationIndex];
+
+  if (denomination === undefined) {
+    return String(denominationIndex);
+  }
+
+  return `${ stripTrailingZeros(formatQi(denomination)) } Qi`;
+};
+
+const stripTrailingZeros = (value: string) => {
+  return value
+    .replace(/(\.\d*?[1-9])0+$/, '$1')
+    .replace(/\.0+$/, '');
+};
 
 const TxUtxoInputs = ({ data, isLoading }: Props) => {
   if (!data.inputs) {
@@ -54,23 +85,20 @@ const TxUtxoInputs = ({ data, isLoading }: Props) => {
             <Box key={ index } mb={ 4 }>
               <Text fontWeight={ 500 } mb={ 2 }>Input #{ index + 1 }</Text>
               <Flex flexDir="column" gap={ 2 }>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Previous Transaction:</Text>
+                <DetailRow label="Previous Transaction:">
                   <TxEntity
                     hash={ camelCaseTxHash }
                     isLoading={ isLoading }
                     truncation="constant"
                     noIcon
                   />
-                </Flex>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Index:</Text>
+                </DetailRow>
+                <DetailRow label="Index:">
                   <Text>{ camelCaseIndex }</Text>
-                </Flex>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Public Key:</Text>
+                </DetailRow>
+                <DetailRow label="Public Key:">
                   <HashStringShortenDynamic hash={ camelCasePubKey }/>
-                </Flex>
+                </DetailRow>
               </Flex>
             </Box>
           );
@@ -80,23 +108,20 @@ const TxUtxoInputs = ({ data, isLoading }: Props) => {
           <Box key={ index } mb={ 4 }>
             <Text fontWeight={ 500 } mb={ 2 }>Input #{ index + 1 }</Text>
             <Flex flexDir="column" gap={ 2 }>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Previous Transaction:</Text>
+              <DetailRow label="Previous Transaction:">
                 <TxEntity
                   hash={ txHash }
                   isLoading={ isLoading }
                   truncation="constant"
                   noIcon
                 />
-              </Flex>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Index:</Text>
+              </DetailRow>
+              <DetailRow label="Index:">
                 <Text>{ indexValue }</Text>
-              </Flex>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Public Key:</Text>
+              </DetailRow>
+              <DetailRow label="Public Key:">
                 <HashStringShortenDynamic hash={ pubKey }/>
-              </Flex>
+              </DetailRow>
             </Flex>
           </Box>
         );
@@ -139,22 +164,19 @@ const TxUtxoOutputs = ({ data, isLoading }: Props) => {
             <Box key={ index } mb={ 4 }>
               <Text fontWeight={ 500 } mb={ 2 }>Output #{ index + 1 }</Text>
               <Flex flexDir="column" gap={ 2 }>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Address:</Text>
+                <DetailRow label="Address:">
                   <AddressEntity
                     address={{ hash: camelCaseAddress }}
                     isLoading={ isLoading }
                     truncation="constant"
                   />
-                </Flex>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Denomination:</Text>
-                  <Text>{ camelCaseDenomination }</Text>
-                </Flex>
-                <Flex alignItems="center" gap={ 2 }>
-                  <Text fontWeight={ 500 }>Lock:</Text>
+                </DetailRow>
+                <DetailRow label="Denomination:">
+                  <Text>{ formatUtxoDenomination(camelCaseDenomination) }</Text>
+                </DetailRow>
+                <DetailRow label="Lock:">
                   <Text>{ camelCaseLock }</Text>
-                </Flex>
+                </DetailRow>
               </Flex>
             </Box>
           );
@@ -164,22 +186,19 @@ const TxUtxoOutputs = ({ data, isLoading }: Props) => {
           <Box key={ index } mb={ 4 }>
             <Text fontWeight={ 500 } mb={ 2 }>Output #{ index + 1 }</Text>
             <Flex flexDir="column" gap={ 2 }>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Address:</Text>
+              <DetailRow label="Address:">
                 <AddressEntity
                   address={{ hash: address }}
                   isLoading={ isLoading }
                   truncation="constant"
                 />
-              </Flex>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Denomination:</Text>
-                <Text>{ denomination }</Text>
-              </Flex>
-              <Flex alignItems="center" gap={ 2 }>
-                <Text fontWeight={ 500 }>Lock:</Text>
+              </DetailRow>
+              <DetailRow label="Denomination:">
+                <Text>{ formatUtxoDenomination(denomination) }</Text>
+              </DetailRow>
+              <DetailRow label="Lock:">
                 <Text>{ lock }</Text>
-              </Flex>
+              </DetailRow>
             </Flex>
           </Box>
         );
@@ -188,4 +207,4 @@ const TxUtxoOutputs = ({ data, isLoading }: Props) => {
   );
 };
 
-export { TxUtxoInputs, TxUtxoOutputs }; 
+export { TxUtxoInputs, TxUtxoOutputs };
