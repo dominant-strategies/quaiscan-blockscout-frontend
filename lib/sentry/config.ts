@@ -88,7 +88,7 @@ export const config: Sentry.BrowserOptions | undefined = (() => {
       /coinzilla\.io/i,
       /slise\.xyz/i,
     ],
-  };
+  } as unknown as Sentry.BrowserOptions;
 })();
 
 export function configureScope(scope: Sentry.Scope) {
