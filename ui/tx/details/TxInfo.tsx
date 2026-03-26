@@ -530,11 +530,11 @@ const TxInfo = ({ data, isLoading, socketStatus }: Props) => {
             <Text>{ data.position }</Text>
           </DetailsInfoItem>
 
-          <DetailsInfoItem title="Inputs" hint="Inputs of the UTXO transaction">
+          <DetailsInfoItem title="Inputs" hint="Inputs of the UTXO transaction" whiteSpace="normal" overflow="hidden">
             <TxUtxoInputs data={ data } isLoading={ isLoading }/>
           </DetailsInfoItem>
 
-          <DetailsInfoItem title="Outputs" hint="Outputs of the UTXO transaction">
+          <DetailsInfoItem title="Outputs" hint="Outputs of the UTXO transaction" whiteSpace="normal" overflow="hidden">
             <TxUtxoOutputs data={ data } isLoading={ isLoading }/>
           </DetailsInfoItem>
         </>

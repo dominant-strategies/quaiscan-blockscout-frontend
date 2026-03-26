@@ -6,6 +6,7 @@ import type { Transaction, UtxoTransaction } from 'types/api/transaction';
 
 import AddressEntity from 'ui/shared/entities/address/AddressEntity';
 import TxEntity from 'ui/shared/entities/tx/TxEntity';
+import HashStringShorten from 'ui/shared/HashStringShorten';
 import HashStringShortenDynamic from 'ui/shared/HashStringShortenDynamic';
 
 interface Props {
@@ -42,13 +43,32 @@ const formatUtxoDenomination = (denominationIndex: number) => {
     return String(denominationIndex);
   }
 
-  return `${ stripTrailingZeros(formatQi(denomination)) } Qi`;
+  const denominationQit = Number(denomination);
+  const denominationQi = stripTrailingZeros(formatQi(denomination));
+  const qitLabel = `${ numberFormat.format(denominationQit) } ${ denominationQit === 1 ? 'Qit' : 'Qits' }`;
+
+  return `${ denominationQi } Qi (${ qitLabel })`;
 };
 
 const stripTrailingZeros = (value: string) => {
   return value
     .replace(/(\.\d*?[1-9])0+$/, '$1')
     .replace(/\.0+$/, '');
+};
+
+const numberFormat = new Intl.NumberFormat('en-US');
+
+const PubKeyValue = ({ value }: { value: string }) => {
+  return (
+    <>
+      <Box display={{ base: 'block', lg: 'none' }} overflow="hidden">
+        <HashStringShorten hash={ value } type="long"/>
+      </Box>
+      <Box display={{ base: 'none', lg: 'block' }} overflow="hidden">
+        <HashStringShortenDynamic hash={ value }/>
+      </Box>
+    </>
+  );
 };
 
 const TxUtxoInputs = ({ data, isLoading }: Props) => {
@@ -97,7 +117,7 @@ const TxUtxoInputs = ({ data, isLoading }: Props) => {
                   <Text>{ camelCaseIndex }</Text>
                 </DetailRow>
                 <DetailRow label="Public Key:">
-                  <HashStringShortenDynamic hash={ camelCasePubKey }/>
+                  <PubKeyValue value={ camelCasePubKey }/>
                 </DetailRow>
               </Flex>
             </Box>
@@ -120,7 +140,7 @@ const TxUtxoInputs = ({ data, isLoading }: Props) => {
                 <Text>{ indexValue }</Text>
               </DetailRow>
               <DetailRow label="Public Key:">
-                <HashStringShortenDynamic hash={ pubKey }/>
+                <PubKeyValue value={ pubKey }/>
               </DetailRow>
             </Flex>
           </Box>
