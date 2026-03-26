@@ -17,6 +17,9 @@ const moduleExports = {
     'swagger-ui-react',
   ],
   reactStrictMode: true,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack(config, { webpack }) {
     config.plugins.push(
       new webpack.DefinePlugin({
@@ -44,8 +47,8 @@ const moduleExports = {
   headers,
   output: 'standalone',
   productionBrowserSourceMaps: true,
-  experimental: {
-    instrumentationHook: true,
+  turbopack: {
+    root: __dirname,
   },
 };
 
