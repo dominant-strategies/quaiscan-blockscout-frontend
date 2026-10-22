@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": false,
   "homepage": "https://github.com/blockscout/frontend#readme",
-  "engines": {},
+  "engines": {
+    "node": ">=22.23.4 <23",
+    "npm": ">=10.9.6 <11"
+  },
   "scripts": {
     "dev": "patch-package && ./tools/scripts/dev.sh",
     "dev:preset": "./tools/scripts/dev.preset.sh",
