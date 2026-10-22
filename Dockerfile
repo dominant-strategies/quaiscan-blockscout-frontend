@@ -1,7 +1,7 @@
 # *****************************
 # *** STAGE 1: Dependencies ***
 # *****************************
-FROM node:22.5.1-alpine AS deps
+FROM node:22.23.4-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat python3 make g++
 
@@ -30,7 +30,7 @@ RUN yarn --frozen-lockfile
 # *****************************
 # ****** STAGE 2: Build *******
 # *****************************
-FROM node:22.5.1-alpine AS builder
+FROM node:22.23.4-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS builder
 RUN apk add --no-cache --upgrade libc6-compat bash
 
 # pass commit sha and git tag to the app image
@@ -84,7 +84,7 @@ RUN cd ./deploy/tools/envs-validator && yarn build
 # ******* STAGE 3: Run ********
 # *****************************
 # Production image, copy all the files and run next
-FROM node:22.5.1-alpine AS runner
+FROM node:22.23.4-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914 AS runner
 RUN apk add --no-cache --upgrade bash curl jq unzip
 
 ### APP
